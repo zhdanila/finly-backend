@@ -18,10 +18,6 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD" validate:"required"`
 }
 
-func (cnf *Config) GetPort() string {
-	return cnf.HTTPPort
-}
-
 func NewConfig() (*Config, error) {
 	baseCnf := &Config{}
 
@@ -38,7 +34,6 @@ func (cnf *Config) Load() error {
 	if err := viper.ReadInConfig(); err != nil {
 		return fmt.Errorf("error reading config file: %v", err)
 	}
-
 	if err := viper.Unmarshal(cnf); err != nil {
 		return fmt.Errorf("failed to unmarshal config: %s", err)
 	}
