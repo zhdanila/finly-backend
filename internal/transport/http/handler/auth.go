@@ -27,6 +27,7 @@ func (s *Auth) Register(server *server.Server) {
 	group.POST("/login", s.Login)
 	group.POST("/logout", s.Logout)
 	group.POST("/refresh", s.Refresh)
+	group.POST("/me", s.Me)
 }
 
 // @Summary RegisterUser a new user
@@ -135,6 +136,34 @@ func (s *Auth) Refresh(c echo.Context) error {
 	res, err := s.service.Auth.RefreshToken(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error refresh token", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Get user information
+// @Description Retrieves information about the currently authenticated user
+// @Tags User
+// @ID get-user-info
+// @Produce json
+// @Param token header string true "Authentication Token"
+// @Success 200 {object} auth.MeResponse
+// @Router /auth/me [post]
+func (s *Auth) Me(c echo.Context) error {
+	var (
+		err error
+		obj auth.MeRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Auth.Me(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error getting info about user", zap.Error(err))
 		return err
 	}
 

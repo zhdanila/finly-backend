@@ -45,6 +45,8 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*Register
 }
 
 func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
+	var err error
+
 	user, err := s.repo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
@@ -57,7 +59,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 		return nil, errs.InvalidCredentials
 	}
 
-	token, err := security.GenerateJWT(user.ID, user.Email)
+	token, err := security.GenerateJWT(user.ID.String(), user.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +68,8 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 }
 
 func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutResponse, error) {
+	var err error
+
 	isBlacklisted, err := s.token.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
@@ -84,6 +88,8 @@ func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutRespon
 }
 
 func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*RefreshTokenResponse, error) {
+	var err error
+
 	isBlacklisted, err := s.token.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
@@ -109,4 +115,29 @@ func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*
 	}
 
 	return &RefreshTokenResponse{Token: newToken}, nil
+}
+
+func (s *Service) Me(ctx context.Context, req *MeRequest) (*MeResponse, error) {
+	var err error
+
+	user, err := security.GetUserFromToken(req.AuthToken)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo, err := s.repo.GetUserByID(ctx, user.UserID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return nil, errs.UserNotFound
+		}
+		return nil, err
+	}
+
+	return &MeResponse{
+		UserInfo: UserInfo{
+			FirstName: userInfo.FirstName,
+			LastName:  userInfo.LastName,
+			Email:     userInfo.Email,
+		},
+	}, nil
 }

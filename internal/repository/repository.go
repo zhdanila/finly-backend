@@ -24,6 +24,7 @@ func NewRepository(db *sqlx.DB, redis *redis.Client) *Repository {
 type Auth interface {
 	Register(ctx context.Context, email, passwordHash, firstName, lastName string) (string, error)
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 }
 
 type Token interface {

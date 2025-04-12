@@ -39,3 +39,14 @@ func (a *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 
 	return &user, nil
 }
+
+func (a *AuthRepository) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", UsersTable)
+
+	var user domain.User
+	if err := a.db.GetContext(ctx, &user, query, id); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
