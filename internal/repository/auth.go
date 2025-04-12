@@ -14,13 +14,14 @@ func NewAuthRepository(db *sqlx.DB) *AuthRepository {
 	return &AuthRepository{db: db}
 }
 
-func (a *AuthRepository) Register(ctx context.Context, email, passwordHash, firstName, lastName string) error {
-	query := fmt.Sprintf("INSERT INTO %s (email, password_hash, firstName, lastName) VALUES ($1, $2, $3, $4)", UsersTable)
+func (a *AuthRepository) Register(ctx context.Context, email, passwordHash, firstName, lastName string) (string, error) {
+	query := fmt.Sprintf("INSERT INTO %s (email, password_hash, first_name, last_name) VALUES ($1, $2, $3, $4) RETURNING id", UsersTable)
 
-	_, err := a.db.Exec(query, email, passwordHash, firstName, lastName)
+	var userID string
+	err := a.db.QueryRowContext(ctx, query, email, passwordHash, firstName, lastName).Scan(&userID)
 	if err != nil {
-		return fmt.Errorf("could not insert buyer: %v", err)
+		return "", fmt.Errorf("could not insert user: %v", err)
 	}
 
-	return nil
+	return userID, nil
 }

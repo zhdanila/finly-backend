@@ -4,7 +4,7 @@ import (
 	"context"
 	"finly-backend/internal/repository"
 	"finly-backend/pkg/security"
-	"go.uber.org/zap"
+	"strings"
 )
 
 type Service struct {
@@ -22,15 +22,24 @@ func (s *Service) RegisterUser(ctx context.Context, req *RegisterRequest) (*Regi
 
 	hashedPassword, err := security.HashPassword(req.Password)
 	if err != nil {
-		zap.L().Error("error hashing password", zap.Error(err))
 		return nil, err
 	}
 
-	err = s.AuthRepo.Register(ctx, req.Email, hashedPassword, req.FirstName, req.LastName)
+	userID, err := s.AuthRepo.Register(ctx, req.Email, hashedPassword, req.FirstName, req.LastName)
 	if err != nil {
-		zap.L().Error("error registering user", zap.Error(err))
+		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+			return nil, errs.UserAlreadyExists
+		}
+
 		return nil, err
 	}
 
-	return &RegisterResponse{}, nil
+	token, err := security.GenerateJWT(userID, req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RegisterResponse{
+		Token: token,
+	}, nil
 }

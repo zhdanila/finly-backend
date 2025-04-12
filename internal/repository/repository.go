@@ -18,5 +18,5 @@ func NewRepository(db *sqlx.DB) *Repository {
 }
 
 type Auth interface {
-	Register(ctx context.Context, email, passwordHash, firstName, lastName string) error
+	Register(ctx context.Context, email, passwordHash, firstName, lastName string) (string, error)
 }

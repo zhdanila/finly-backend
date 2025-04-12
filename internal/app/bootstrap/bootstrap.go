@@ -46,7 +46,7 @@ func Website() {
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	zap.L().Sugar().Info("Finly backend Shutting Down")
+	zap.L().Sugar().Info("Finly backend shutting down")
 
 	if err := srv.Shutdown(ctx); err != nil {
 		zap.L().Sugar().Fatalf("error with shutting down server: %s", err.Error())
