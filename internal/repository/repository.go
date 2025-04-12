@@ -11,13 +11,13 @@ import (
 
 type Repository struct {
 	Auth
-	TokenBlacklist
+	Token
 }
 
 func NewRepository(db *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
-		Auth:           postgres.NewAuthRepository(db),
-		TokenBlacklist: redis2.NewTokenBlacklistRepository(redis),
+		Auth:  postgres.NewAuthRepository(db),
+		Token: redis2.NewTokenRepository(redis),
 	}
 }
 
@@ -26,7 +26,8 @@ type Auth interface {
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
 }
 
-type TokenBlacklist interface {
-	AddToken(ctx context.Context, token string, ttlSeconds float64) error
+type Token interface {
+	AddTokenToBlacklist(ctx context.Context, token string, ttlSeconds float64) error
 	IsTokenBlacklisted(ctx context.Context, token string) (bool, error)
+	RemoveToken(ctx context.Context, token string) error
 }

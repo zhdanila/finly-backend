@@ -27,3 +27,11 @@ type LogoutRequest struct {
 type LogoutResponse struct {
 	Message string `json:"message"`
 }
+
+type RefreshTokenRequest struct {
+	AuthToken string `header:"Authorization"`
+}
+
+type RefreshTokenResponse struct {
+	Token string `json:"token"`
+}

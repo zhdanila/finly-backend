@@ -8,14 +8,14 @@ import (
 )
 
 type Service struct {
-	repo           repository.Auth
-	tokenBlacklist repository.TokenBlacklist
+	repo  repository.Auth
+	token repository.Token
 }
 
-func NewService(repo repository.Auth, tokenBlacklist repository.TokenBlacklist) *Service {
+func NewService(repo repository.Auth, tokenBlacklist repository.Token) *Service {
 	return &Service{
-		repo:           repo,
-		tokenBlacklist: tokenBlacklist,
+		repo:  repo,
+		token: tokenBlacklist,
 	}
 }
 
@@ -66,7 +66,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 }
 
 func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutResponse, error) {
-	isBlacklisted, err := s.tokenBlacklist.IsTokenBlacklisted(ctx, req.AuthToken)
+	isBlacklisted, err := s.token.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -75,10 +75,38 @@ func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutRespon
 		return &LogoutResponse{Message: "Token is already blacklisted"}, nil
 	}
 
-	err = s.tokenBlacklist.AddToken(ctx, req.AuthToken, security.TokenTTL.Seconds())
+	err = s.token.AddTokenToBlacklist(ctx, req.AuthToken, security.TokenTTL.Seconds())
 	if err != nil {
 		return nil, err
 	}
 
 	return &LogoutResponse{Message: "Successfully logged out"}, nil
+}
+
+func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*RefreshTokenResponse, error) {
+	isBlacklisted, err := s.token.IsTokenBlacklisted(ctx, req.AuthToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if isBlacklisted {
+		return nil, errs.TokenBlacklisted
+	}
+
+	user, err := security.GetUserFromToken(req.AuthToken)
+	if err != nil {
+		return nil, err
+	}
+
+	newToken, err := security.GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.token.RemoveToken(ctx, req.AuthToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return &RefreshTokenResponse{Token: newToken}, nil
 }

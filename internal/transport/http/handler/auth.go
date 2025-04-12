@@ -26,6 +26,7 @@ func (s *Auth) Register(server *server.Server) {
 	group.POST("/register", s.RegisterUser)
 	group.POST("/login", s.Login)
 	group.POST("/logout", s.Logout)
+	group.POST("/refresh", s.Refresh)
 }
 
 // @Summary RegisterUser a new user
@@ -105,7 +106,35 @@ func (s *Auth) Logout(c echo.Context) error {
 
 	res, err := s.service.Auth.Logout(c.Request().Context(), &obj)
 	if err != nil {
-		zap.L().Error("error login user", zap.Error(err))
+		zap.L().Error("error logout user", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Refresh a user token
+// @Description Refreshes a user's authentication token by generating a new one
+// @Tags User
+// @ID refresh-token
+// @Produce json
+// @Param token body auth.RefreshTokenRequest true "Authentication Token"
+// @Success 200 {object} auth.RefreshTokenResponse
+// @Router /auth/refresh [post]
+func (s *Auth) Refresh(c echo.Context) error {
+	var (
+		err error
+		obj auth.RefreshTokenRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Auth.RefreshToken(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error refresh token", zap.Error(err))
 		return err
 	}
 
