@@ -19,3 +19,11 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+type LogoutRequest struct {
+	AuthToken string `header:"Authorization"`
+}
+
+type LogoutResponse struct {
+	Message string `json:"message"`
+}

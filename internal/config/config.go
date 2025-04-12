@@ -16,6 +16,12 @@ type Config struct {
 	DBName     string `mapstructure:"DB_NAME" validate:"required"`
 	DBSSLMode  string `mapstructure:"DB_SSLMODE" validate:"required"`
 	DBPassword string `mapstructure:"DB_PASSWORD" validate:"required"`
+
+	// Redis configuration
+	RedisHost     string `mapstructure:"REDIS_HOST" validate:"required"`
+	RedisPort     string `mapstructure:"REDIS_PORT" validate:"required"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
+	RedisDB       int    `mapstructure:"REDIS_DB"`
 }
 
 func NewConfig() (*Config, error) {

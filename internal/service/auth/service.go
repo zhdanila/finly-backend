@@ -8,12 +8,14 @@ import (
 )
 
 type Service struct {
-	repo repository.Auth
+	repo           repository.Auth
+	tokenBlacklist repository.TokenBlacklist
 }
 
-func NewService(repo repository.Auth) *Service {
+func NewService(repo repository.Auth, tokenBlacklist repository.TokenBlacklist) *Service {
 	return &Service{
-		repo: repo,
+		repo:           repo,
+		tokenBlacklist: tokenBlacklist,
 	}
 }
 
@@ -61,4 +63,22 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 	}
 
 	return &LoginResponse{Token: token}, nil
+}
+
+func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutResponse, error) {
+	isBlacklisted, err := s.tokenBlacklist.IsTokenBlacklisted(ctx, req.AuthToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if isBlacklisted {
+		return &LogoutResponse{Message: "Token is already blacklisted"}, nil
+	}
+
+	err = s.tokenBlacklist.AddToken(ctx, req.AuthToken, security.TokenTTL.Seconds())
+	if err != nil {
+		return nil, err
+	}
+
+	return &LogoutResponse{Message: "Successfully logged out"}, nil
 }

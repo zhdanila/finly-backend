@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"context"
@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )
+
+const UsersTable = "users"
 
 type AuthRepository struct {
 	db *sqlx.DB

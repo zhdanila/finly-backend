@@ -25,6 +25,7 @@ func (s *Auth) Register(server *server.Server) {
 
 	group.POST("/register", s.RegisterUser)
 	group.POST("/login", s.Login)
+	group.POST("/logout", s.Logout)
 }
 
 // @Summary RegisterUser a new user
@@ -75,6 +76,34 @@ func (s *Auth) Login(c echo.Context) error {
 	}
 
 	res, err := s.service.Auth.Login(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error login user", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Logout a user
+// @Description Logs out a user by invalidating their authentication token
+// @Tags User
+// @ID logout-user
+// @Produce json
+// @Param token body auth.LogoutRequest true "Authentication Token"
+// @Success 200 {object} auth.LogoutResponse
+// @Router /auth/logout [post]
+func (s *Auth) Logout(c echo.Context) error {
+	var (
+		err error
+		obj auth.LogoutRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Auth.Logout(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error login user", zap.Error(err))
 		return err

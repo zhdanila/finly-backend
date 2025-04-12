@@ -11,10 +11,12 @@ const TokenTTL = 72 * time.Hour
 var jwtSecret = []byte("your_secret_key")
 
 func GenerateJWT(userID string, email string) (string, error) {
+	expirationTime := time.Now().Add(TokenTTL)
+
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"email":   email,
-		"exp":     TokenTTL,
+		"exp":     expirationTime.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -3,22 +3,30 @@ package repository
 import (
 	"context"
 	"finly-backend/internal/domain"
+	"finly-backend/internal/repository/postgres"
+	redis2 "finly-backend/internal/repository/redis"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 )
-
-const UsersTable = "users"
 
 type Repository struct {
 	Auth
+	TokenBlacklist
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
-		Auth: NewAuthRepository(db),
+		Auth:           postgres.NewAuthRepository(db),
+		TokenBlacklist: redis2.NewTokenBlacklistRepository(redis),
 	}
 }
 
 type Auth interface {
 	Register(ctx context.Context, email, passwordHash, firstName, lastName string) (string, error)
 	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+}
+
+type TokenBlacklist interface {
+	AddToken(ctx context.Context, token string, ttlSeconds float64) error
+	IsTokenBlacklisted(ctx context.Context, token string) (bool, error)
 }
