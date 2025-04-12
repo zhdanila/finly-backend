@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"finly-backend/internal/domain"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,4 +20,5 @@ func NewRepository(db *sqlx.DB) *Repository {
 
 type Auth interface {
 	Register(ctx context.Context, email, passwordHash, firstName, lastName string) (string, error)
+	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
 }

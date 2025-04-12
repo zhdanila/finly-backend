@@ -6,7 +6,9 @@ import (
 )
 
 var errs = struct {
-	UserAlreadyExists *echo.HTTPError
+	UserAlreadyExists  *echo.HTTPError
+	InvalidCredentials *echo.HTTPError
 }{
-	UserAlreadyExists: echo.NewHTTPError(http.StatusNotFound, "User already exists"),
+	UserAlreadyExists:  echo.NewHTTPError(http.StatusConflict, "User already exists"),
+	InvalidCredentials: echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials"),
 }

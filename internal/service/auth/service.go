@@ -8,16 +8,16 @@ import (
 )
 
 type Service struct {
-	AuthRepo repository.Auth
+	repo repository.Auth
 }
 
 func NewService(repo repository.Auth) *Service {
 	return &Service{
-		AuthRepo: repo,
+		repo: repo,
 	}
 }
 
-func (s *Service) RegisterUser(ctx context.Context, req *RegisterRequest) (*RegisterResponse, error) {
+func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*RegisterResponse, error) {
 	var err error
 
 	hashedPassword, err := security.HashPassword(req.Password)
@@ -25,7 +25,7 @@ func (s *Service) RegisterUser(ctx context.Context, req *RegisterRequest) (*Regi
 		return nil, err
 	}
 
-	userID, err := s.AuthRepo.Register(ctx, req.Email, hashedPassword, req.FirstName, req.LastName)
+	userID, err := s.repo.Register(ctx, req.Email, hashedPassword, req.FirstName, req.LastName)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 			return nil, errs.UserAlreadyExists
@@ -39,7 +39,26 @@ func (s *Service) RegisterUser(ctx context.Context, req *RegisterRequest) (*Regi
 		return nil, err
 	}
 
-	return &RegisterResponse{
-		Token: token,
-	}, nil
+	return &RegisterResponse{Token: token}, nil
+}
+
+func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
+	user, err := s.repo.GetUserByEmail(ctx, req.Email)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return nil, errs.InvalidCredentials
+		}
+		return nil, err
+	}
+
+	if !security.CheckPasswordHash(req.Password, user.PasswordHash) {
+		return nil, errs.InvalidCredentials
+	}
+
+	token, err := security.GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	return &LoginResponse{Token: token}, nil
 }

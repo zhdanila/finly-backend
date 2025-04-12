@@ -11,5 +11,5 @@ func RegisterRoutes(server *server.Server, services *service.Service) {
 	server.Use(middleware.RecoverMiddleware())
 
 	// Register handlers
-	handler.NewAuth(services.Auth).Register(server)
+	handler.NewAuth(services).Register(server)
 }

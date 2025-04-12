@@ -1,14 +1,15 @@
 package bind
 
 import (
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
-type BindOption func(c echo.Context, obj any) error
+type Option func(c echo.Context, obj any) error
 
-func BindValidate(c echo.Context, obj any, opts ...BindOption) error {
+func Validate(c echo.Context, obj any, opts ...Option) error {
 	var err error
 
 	err = c.Bind(obj)
@@ -26,7 +27,8 @@ func BindValidate(c echo.Context, obj any, opts ...BindOption) error {
 
 	err = c.Validate(obj)
 	if err != nil {
-		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
 			return echo.NewHTTPError(http.StatusBadRequest, validationErrors)
 		}
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad request")
