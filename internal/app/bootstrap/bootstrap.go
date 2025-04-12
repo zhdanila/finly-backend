@@ -4,38 +4,40 @@ import (
 	"context"
 	"finly-backend/internal/config"
 	"finly-backend/internal/repository"
-	"finly-backend/internal/repository/service"
-	http2 "finly-backend/internal/transport/http"
+	"finly-backend/internal/service"
+	"finly-backend/internal/transport/http/router"
 	"finly-backend/pkg/db"
 	"finly-backend/pkg/logger"
-	"fmt"
+	"finly-backend/pkg/server"
+	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 func Website() {
+	logger.InitLogger()
+
 	ctx := context.Background()
 	cfg, err := config.NewConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	log := logger.SetupLogger(cfg.Env)
-
 	db, err := db.NewPostgresDB(cfg)
 	if err != nil {
-		log.Error(fmt.Sprintf("error with connecting to database: %s", err.Error()))
+		zap.L().Sugar().Errorf("error with connecting to database: %s", err.Error())
 	}
+
 	repo := repository.NewRepository(db)
 	services := service.NewService(repo)
-	srv := http2.NewServer(cfg.HTTPPort, services)
+	srv := server.NewServer(cfg.HTTPPort)
+	router.RegisterRoutes(srv, services)
 
-	fmt.Println("Starting server on port", cfg.HTTPPort)
-
+	zap.L().Sugar().Infof("Finly backend started on port %s", cfg.HTTPPort)
 	go func() {
 		if err = srv.Start(); err != nil {
-			log.Error("error with starting server", "error", err)
+			zap.L().Sugar().Fatalf("error with starting server: %s", err.Error())
 		}
 	}()
 
@@ -44,9 +46,9 @@ func Website() {
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	log.Info("Finly backend Shutting Down")
+	zap.L().Sugar().Info("Finly backend Shutting Down")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Error("error with shutting down server", "error", err)
+		zap.L().Sugar().Fatalf("error with shutting down server: %s", err.Error())
 	}
 }

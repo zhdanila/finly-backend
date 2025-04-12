@@ -1,10 +1,11 @@
-package http
+package server
 
 import (
-	"finly-backend/internal/repository/service"
 	"finly-backend/internal/transport/http/middleware"
+	validator2 "finly-backend/pkg/validator"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type Server struct {
@@ -12,11 +13,15 @@ type Server struct {
 	*echo.Echo
 }
 
-func NewServer(port string, service *service.Service) *Server {
+func NewServer(port string) *Server {
+	var err error
+
 	server := echo.New()
 	server.Use(middleware.RecoverMiddleware())
 
-	// register handlers
+	if server.Validator, err = validator2.CustomValidator(); err != nil {
+		zap.L().Fatal("Error setting up custom validator", zap.Error(err))
+	}
 
 	return &Server{
 		Port: port,

@@ -1,29 +1,28 @@
 package logger
 
 import (
-	"log/slog"
-	"os"
+	"go.uber.org/zap"
 )
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
-)
+const logFilePath = "logfile"
 
-func SetupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal, envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
+func InitLogger() {
+	config := zap.Config{
+		Level:            zap.NewAtomicLevelAt(zap.InfoLevel),
+		Development:      false,
+		Encoding:         "json",
+		EncoderConfig:    zap.NewDevelopmentEncoderConfig(),
+		OutputPaths:      []string{"stdout", logFilePath},
+		ErrorOutputPaths: []string{"stderr"},
 	}
 
-	return log
+	logger, err := config.Build()
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
+
+	zap.ReplaceGlobals(logger)
+
+	zap.L().Info("Custom logger initialized")
 }
