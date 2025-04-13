@@ -122,6 +122,36 @@ definitions:
           $ref: '#/definitions/finly-backend_internal_service_budget.Budget'
         type: array
     type: object
+  finly-backend_internal_service_category.CreateCategoryRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      userID:
+        type: string
+    required:
+    - description
+    - name
+    - userID
+    type: object
+  finly-backend_internal_service_category.CreateCategoryResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  finly-backend_internal_service_category.DeleteCategoryResponse:
+    type: object
+  finly-backend_internal_service_category.GetCategoryByIDResponse:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
 info:
   contact: {}
 paths:
@@ -318,4 +348,79 @@ paths:
       summary: Get budget by ID
       tags:
       - Budget
+  /category:
+    get:
+      description: Retrieves all categories for the user
+      operationId: list-categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/finly-backend_internal_service_category.GetCategoryByIDResponse'
+            type: array
+      summary: List all categories
+      tags:
+      - Category
+    post:
+      description: Creates a new category for the user with the provided details
+      operationId: create-category
+      parameters:
+      - description: Category Details
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/finly-backend_internal_service_category.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_category.CreateCategoryResponse'
+      summary: Create a new category
+      tags:
+      - Category
+  /category/{id}:
+    delete:
+      description: Deletes the category with the given ID
+      operationId: delete-category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_category.DeleteCategoryResponse'
+      summary: Delete a category
+      tags:
+      - Category
+    get:
+      description: Retrieves the category details for the given ID
+      operationId: get-category-by-id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_category.GetCategoryByIDResponse'
+      summary: Get category by ID
+      tags:
+      - Category
 swagger: "2.0"

@@ -57,7 +57,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 		return nil, errs.InvalidCredentials
 	}
 
-	token, err := security.GenerateJWT(user.ID.String(), user.Email)
+	token, err := security.GenerateJWT(user.ID, user.Email)
 	if err != nil {
 		return nil, err
 	}

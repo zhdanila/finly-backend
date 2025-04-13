@@ -37,7 +37,7 @@ func (a *AuthRepository) Register(ctx context.Context, email, passwordHash, firs
 }
 
 func (a *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	query := fmt.Sprintf("SELECT password_hash FROM %s WHERE email = $1", UsersTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE email = $1", UsersTable)
 
 	var user domain.User
 	if err := a.postgres.GetContext(ctx, &user, query, email); err != nil {

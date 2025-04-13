@@ -2,13 +2,12 @@ package domain
 
 import (
 	"database/sql"
-	"github.com/google/uuid"
 	"time"
 )
 
 type Budget struct {
-	ID        uuid.UUID     `db:"id"`
-	UserID    uuid.UUID     `db:"user_id"`
+	ID        string        `db:"id"`
+	UserID    string        `db:"user_id"`
 	Name      string        `db:"name"`
 	Amount    sql.NullInt64 `db:"amount"`
 	Currency  string        `db:"currency"`
