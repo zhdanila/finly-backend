@@ -63,3 +63,13 @@ func (s *Service) List(ctx context.Context, req *ListBudgetsByIDRequest) (*ListB
 		Budgets: budgetsResponse,
 	}, nil
 }
+
+func (s *Service) Delete(ctx context.Context, req *DeleteBudgetRequest) (*DeleteBudgetResponse, error) {
+	var err error
+
+	if err = s.repo.Delete(ctx, req.BudgetID, req.UserID); err != nil {
+		return nil, err
+	}
+
+	return &DeleteBudgetResponse{}, nil
+}

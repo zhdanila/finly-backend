@@ -53,3 +53,13 @@ func (b BudgetRepository) List(ctx context.Context, userID string) ([]*domain.Bu
 
 	return budgets, nil
 }
+
+func (b BudgetRepository) Delete(ctx context.Context, budgetID, userID string) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1 AND user_id = $2", BudgetTable)
+
+	if _, err := b.postgres.ExecContext(ctx, query, budgetID, userID); err != nil {
+		return err
+	}
+
+	return nil
+}

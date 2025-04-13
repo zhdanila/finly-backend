@@ -27,6 +27,7 @@ func (s *Budget) Register(server *server.Server) {
 	group.POST("", s.Create)
 	group.GET("/:budget_id", s.GetByID)
 	group.GET("", s.List)
+	group.DELETE("/:budget_id", s.Delete)
 }
 
 // @Summary Create a new budget
@@ -106,6 +107,35 @@ func (s *Budget) List(c echo.Context) error {
 	}
 
 	res, err := s.service.Budget.List(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error getting budget by id", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Delete a budget
+// @Description Deletes a budget by its ID for the specified user
+// @Tags Budget
+// @ID delete-budget
+// @Produce json
+// @Param budget_id path string true "Budget ID"
+// @Param user_id header string true "User ID"
+// @Success 200 {object} budget.DeleteBudgetResponse
+// @Router /budget/{budget_id} [delete]
+func (s *Budget) Delete(c echo.Context) error {
+	var (
+		err error
+		obj budget.DeleteBudgetRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Budget.Delete(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error getting budget by id", zap.Error(err))
 		return err

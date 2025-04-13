@@ -30,3 +30,10 @@ type ListBudgetsByIDRequest struct {
 type ListBudgetsByIDResponse struct {
 	Budgets []Budget `json:"budgets"`
 }
+
+type DeleteBudgetRequest struct {
+	UserID   string `header:"User-Id" validate:"required"`
+	BudgetID string `param:"budget_id" validate:"required,uuid"`
+}
+
+type DeleteBudgetResponse struct{}
