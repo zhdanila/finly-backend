@@ -54,3 +54,29 @@ func GetUserFromToken(tokenStr string) (*Claims, error) {
 
 	return claims, nil
 }
+
+func Verify(tokenStr string) (*Claims, error) {
+	parsedToken := strings.TrimPrefix(tokenStr, "Bearer ")
+
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(parsedToken, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return jwtSecret, nil
+	})
+
+	if err != nil {
+		return nil, errors.New("failed to parse token: " + err.Error())
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	if claims.ExpiresAt.Before(time.Now()) {
+		return nil, errors.New("token has expired")
+	}
+
+	return claims, nil
+}

@@ -9,4 +9,5 @@ import (
 func RegisterRoutes(server *server.Server, services *service.Service) {
 	// Register handlers
 	handler.NewAuth(services).Register(server)
+	handler.NewBudget(services).Register(server)
 }

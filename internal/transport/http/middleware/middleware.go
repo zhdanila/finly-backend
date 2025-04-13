@@ -1,10 +1,14 @@
 package middleware
 
 import (
+	jwt "finly-backend/pkg/security"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 )
+
+const headerUserId = "User-Id"
 
 func RecoverMiddleware() echo.MiddlewareFunc {
 	config := middleware.DefaultRecoverConfig
@@ -28,3 +32,17 @@ func CORSMiddleware() echo.MiddlewareFunc {
 		},
 	})
 }
+
+func JWT() func(next echo.HandlerFunc) echo.HandlerFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
+			claims, err := jwt.Verify(auth)
+			if err != nil {
+				return nil, err
+			}
+			c.Request().Header.Set(headerUserId, claims.UserID)
+			return claims, nil
+		},
+	})
+}
+
