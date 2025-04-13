@@ -13,3 +13,20 @@ type CreateBudgetRequest struct {
 }
 
 type CreateBudgetResponse struct{}
+
+type GetBudgetByIDRequest struct {
+	UserID   string `header:"User-Id" validate:"required"`
+	BudgetID string `param:"budget_id" validate:"required,uuid"`
+}
+
+type GetBudgetByIDResponse struct {
+	Budget
+}
+
+type ListBudgetsByIDRequest struct {
+	UserID string `header:"User-Id" validate:"required"`
+}
+
+type ListBudgetsByIDResponse struct {
+	Budgets []Budget `json:"budgets"`
+}

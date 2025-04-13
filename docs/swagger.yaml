@@ -80,6 +80,30 @@ definitions:
       token:
         type: string
     type: object
+  finly-backend_internal_service_budget.CreateBudgetRequest:
+    properties:
+      currency:
+        type: string
+      name:
+        type: string
+      userID:
+        type: string
+    required:
+    - currency
+    - name
+    - userID
+    type: object
+  finly-backend_internal_service_budget.CreateBudgetResponse:
+    type: object
+  finly-backend_internal_service_budget.GetBudgetByIDResponse:
+    properties:
+      amount:
+        type: integer
+      currency:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -187,4 +211,50 @@ paths:
       summary: RegisterUser a new user
       tags:
       - User
+  /budget:
+    post:
+      description: Creates a new budget for the user with the provided details
+      operationId: create-budget
+      parameters:
+      - description: Budget Details
+        in: body
+        name: budget
+        required: true
+        schema:
+          $ref: '#/definitions/finly-backend_internal_service_budget.CreateBudgetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_budget.CreateBudgetResponse'
+      summary: Create a new budget
+      tags:
+      - Budget
+  /budget/{budget_id}:
+    get:
+      description: Retrieves a budget by its ID for the specified user
+      operationId: get-budget-by-id
+      parameters:
+      - description: Budget ID
+        in: path
+        name: budget_id
+        required: true
+        type: string
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse'
+      summary: Get budget by ID
+      tags:
+      - Budget
 swagger: "2.0"

@@ -31,4 +31,6 @@ type Auth interface {
 
 type Budget interface {
 	Create(ctx context.Context, userID, name, currency string) error
+	GetByID(ctx context.Context, budgetID, userID string) (*domain.Budget, error)
+	List(ctx context.Context, userID string) ([]*domain.Budget, error)
 }

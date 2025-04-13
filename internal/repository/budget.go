@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"finly-backend/internal/domain"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -29,4 +30,26 @@ func (b BudgetRepository) Create(ctx context.Context, userId, name, currency str
 	}
 
 	return nil
+}
+
+func (b BudgetRepository) GetByID(ctx context.Context, budgetID, userID string) (*domain.Budget, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND user_id = $2", BudgetTable)
+
+	var budget domain.Budget
+	if err := b.postgres.GetContext(ctx, &budget, query, budgetID, userID); err != nil {
+		return nil, err
+	}
+
+	return &budget, nil
+}
+
+func (b BudgetRepository) List(ctx context.Context, userID string) ([]*domain.Budget, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", BudgetTable)
+
+	var budgets []*domain.Budget
+	if err := b.postgres.SelectContext(ctx, &budgets, query, userID); err != nil {
+		return nil, err
+	}
+
+	return budgets, nil
 }
