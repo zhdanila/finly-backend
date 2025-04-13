@@ -18,6 +18,7 @@ func NewServer(port string) *Server {
 
 	server := echo.New()
 	server.Use(middleware.RecoverMiddleware())
+	server.Use(middleware.CORSMiddleware())
 
 	if server.Validator, err = validator2.CustomValidator(); err != nil {
 		zap.L().Fatal("Error setting up custom validator", zap.Error(err))

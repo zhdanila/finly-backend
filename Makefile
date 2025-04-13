@@ -9,3 +9,6 @@ migrate-up:
 
 migrate-down:
 	goose -dir migrations postgres "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)" reset
+
+swagger:
+	swag init --parseDependency --parseInternal -g cmd/server/main.go

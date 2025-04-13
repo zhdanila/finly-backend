@@ -8,14 +8,12 @@ import (
 )
 
 type Service struct {
-	repo  repository.Auth
-	token repository.Token
+	repo repository.Auth
 }
 
-func NewService(repo repository.Auth, tokenBlacklist repository.Token) *Service {
+func NewService(repo repository.Auth) *Service {
 	return &Service{
-		repo:  repo,
-		token: tokenBlacklist,
+		repo: repo,
 	}
 }
 
@@ -70,7 +68,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutResponse, error) {
 	var err error
 
-	isBlacklisted, err := s.token.IsTokenBlacklisted(ctx, req.AuthToken)
+	isBlacklisted, err := s.repo.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +77,7 @@ func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutRespon
 		return &LogoutResponse{Message: "Token is already blacklisted"}, nil
 	}
 
-	err = s.token.AddTokenToBlacklist(ctx, req.AuthToken, security.TokenTTL.Seconds())
+	err = s.repo.AddTokenToBlacklist(ctx, req.AuthToken, security.TokenTTL.Seconds())
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +88,7 @@ func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutRespon
 func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	var err error
 
-	isBlacklisted, err := s.token.IsTokenBlacklisted(ctx, req.AuthToken)
+	isBlacklisted, err := s.repo.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +107,7 @@ func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*
 		return nil, err
 	}
 
-	err = s.token.RemoveToken(ctx, req.AuthToken)
+	err = s.repo.RemoveToken(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
