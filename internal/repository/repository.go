@@ -10,12 +10,14 @@ import (
 type Repository struct {
 	Auth
 	Budget
+	Category
 }
 
 func NewRepository(postgres *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
-		Auth:   NewAuthRepository(postgres, redis),
-		Budget: NewBudgetRepository(postgres, redis),
+		Auth:     NewAuthRepository(postgres, redis),
+		Budget:   NewBudgetRepository(postgres, redis),
+		Category: NewCategoryRepository(postgres, redis),
 	}
 }
 
@@ -34,4 +36,11 @@ type Budget interface {
 	GetByID(ctx context.Context, budgetID, userID string) (*domain.Budget, error)
 	List(ctx context.Context, userID string) ([]*domain.Budget, error)
 	Delete(ctx context.Context, budgetID, userID string) error
+}
+
+type Category interface {
+	Create(ctx context.Context, userID, name, description string) (string, error)
+	GetByID(ctx context.Context, categoryID, userID string) (*domain.Category, error)
+	List(ctx context.Context, userID string) ([]*domain.Category, error)
+	Delete(ctx context.Context, categoryID, userID string) error
 }
