@@ -33,11 +33,11 @@ func (b BudgetRepository) Create(ctx context.Context, userId, currency string) (
 	return id, nil
 }
 
-func (b BudgetRepository) GetByID(ctx context.Context, budgetID, userID string) (*domain.Budget, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND user_id = $2", BudgetTable)
+func (b BudgetRepository) GetByUserID(ctx context.Context, userID string) (*domain.Budget, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", BudgetTable)
 
 	var budget domain.Budget
-	if err := b.postgres.GetContext(ctx, &budget, query, budgetID, userID); err != nil {
+	if err := b.postgres.GetContext(ctx, &budget, query, userID); err != nil {
 		return nil, err
 	}
 

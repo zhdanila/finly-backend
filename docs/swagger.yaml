@@ -3,10 +3,12 @@ definitions:
     enum:
     - deposit
     - withdrawal
+    - initial
     type: string
     x-enum-varnames:
     - Deposit
     - Withdrawal
+    - Initial
   finly-backend_internal_service_auth.LoginRequest:
     properties:
       email:
@@ -88,13 +90,27 @@ definitions:
       token:
         type: string
     type: object
+  finly-backend_internal_service_budget.BudgetHistory:
+    properties:
+      balance:
+        type: number
+      budget_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+    type: object
   finly-backend_internal_service_budget.CreateBudgetRequest:
     properties:
+      amount:
+        type: number
       currency:
         type: string
       userID:
         type: string
     required:
+    - amount
     - currency
     - userID
     type: object
@@ -115,6 +131,13 @@ definitions:
         type: string
       user_id:
         type: string
+    type: object
+  finly-backend_internal_service_budget.GetBudgetHistoryResponse:
+    properties:
+      budget_history:
+        items:
+          $ref: '#/definitions/finly-backend_internal_service_budget.BudgetHistory'
+        type: array
     type: object
   finly-backend_internal_service_category.CreateCategoryRequest:
     properties:
@@ -343,6 +366,31 @@ paths:
           schema:
             $ref: '#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse'
       summary: Get budget by ID
+      tags:
+      - Budget
+  /budget/{budget_id}/history:
+    get:
+      description: Retrieves the history of a budget for the specified user
+      operationId: get-budget-history
+      parameters:
+      - description: Budget ID
+        in: path
+        name: budget_id
+        required: true
+        type: string
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_budget.GetBudgetHistoryResponse'
+      summary: Get budget history
       tags:
       - Budget
   /category:

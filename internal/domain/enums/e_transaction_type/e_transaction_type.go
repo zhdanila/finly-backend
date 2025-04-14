@@ -5,6 +5,7 @@ type Enum string
 const (
 	Deposit    Enum = "deposit"
 	Withdrawal Enum = "withdrawal"
+	Initial    Enum = "initial"
 )
 
 func (r *Enum) IsValid() bool {

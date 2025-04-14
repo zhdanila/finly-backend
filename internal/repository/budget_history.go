@@ -43,3 +43,25 @@ func (b BudgetHistoryRepository) GetLastByID(ctx context.Context, budgetID strin
 
 	return &history, nil
 }
+
+func (b BudgetHistoryRepository) Create(ctx context.Context, budgetID string, amount float64) (string, error) {
+	query := fmt.Sprintf("INSERT INTO %s (budget_id, balance) VALUES ($1, $2) RETURNING id", BudgetHistoryTable)
+
+	var id string
+	if err := b.postgres.QueryRowContext(ctx, query, budgetID, amount).Scan(&id); err != nil {
+		return "", err
+	}
+
+	return id, nil
+}
+
+func (b BudgetHistoryRepository) List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE budget_id = $1 ORDER BY created_at DESC", BudgetHistoryTable)
+
+	var histories []*domain.BudgetHistory
+	if err := b.postgres.SelectContext(ctx, &histories, query, budgetID); err != nil {
+		return nil, err
+	}
+
+	return histories, nil
+}

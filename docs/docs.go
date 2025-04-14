@@ -242,6 +242,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/budget/{budget_id}/history": {
+            "get": {
+                "description": "Retrieves the history of a budget for the specified user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budget"
+                ],
+                "summary": "Get budget history",
+                "operationId": "get-budget-history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Budget ID",
+                        "name": "budget_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_budget.GetBudgetHistoryResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/category": {
             "get": {
                 "description": "Retrieves all categories for the user",
@@ -392,11 +429,13 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "deposit",
-                "withdrawal"
+                "withdrawal",
+                "initial"
             ],
             "x-enum-varnames": [
                 "Deposit",
-                "Withdrawal"
+                "Withdrawal",
+                "Initial"
             ]
         },
         "finly-backend_internal_service_auth.LoginRequest": {
@@ -516,13 +555,34 @@ const docTemplate = `{
                 }
             }
         },
+        "finly-backend_internal_service_budget.BudgetHistory": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "budget_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "finly-backend_internal_service_budget.CreateBudgetRequest": {
             "type": "object",
             "required": [
+                "amount",
                 "currency",
                 "userID"
             ],
             "properties": {
+                "amount": {
+                    "type": "number"
+                },
                 "currency": {
                     "type": "string"
                 },
@@ -556,6 +616,17 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_budget.GetBudgetHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "budget_history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/finly-backend_internal_service_budget.BudgetHistory"
+                    }
                 }
             }
         },

@@ -25,7 +25,8 @@ func (s *Budget) Register(server *server.Server) {
 	group := server.Group("/budget", middleware.JWT())
 
 	group.POST("", s.Create)
-	group.GET("/:budget_id", s.GetByID)
+	group.GET("", s.GetByUserID)
+	group.GET("/:budget_id", s.GetBudgetHistory)
 }
 
 // @Summary Create a new budget
@@ -65,7 +66,7 @@ func (s *Budget) Create(c echo.Context) error {
 // @Param user_id header string true "User ID"
 // @Success 200 {object} budget.GetBudgetByIDResponse
 // @Router /budget/{budget_id} [get]
-func (s *Budget) GetByID(c echo.Context) error {
+func (s *Budget) GetByUserID(c echo.Context) error {
 	var (
 		err error
 		obj budget.GetBudgetByIDRequest
@@ -76,7 +77,36 @@ func (s *Budget) GetByID(c echo.Context) error {
 		return err
 	}
 
-	res, err := s.service.Budget.GetByID(c.Request().Context(), &obj)
+	res, err := s.service.Budget.GetByUserID(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error getting budget by id", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Get budget history
+// @Description Retrieves the history of a budget for the specified user
+// @Tags Budget
+// @ID get-budget-history
+// @Produce json
+// @Param budget_id path string true "Budget ID"
+// @Param user_id header string true "User ID"
+// @Success 200 {object} budget.GetBudgetHistoryResponse
+// @Router /budget/{budget_id}/history [get]
+func (s *Budget) GetBudgetHistory(c echo.Context) error {
+	var (
+		err error
+		obj budget.GetBudgetHistoryRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Budget.GetBudgetHistory(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error getting budget by id", zap.Error(err))
 		return err

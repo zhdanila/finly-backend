@@ -37,7 +37,7 @@ type Auth interface {
 
 type Budget interface {
 	Create(ctx context.Context, userID, currency string) (string, error)
-	GetByID(ctx context.Context, budgetID, userID string) (*domain.Budget, error)
+	GetByUserID(ctx context.Context, userID string) (*domain.Budget, error)
 }
 
 type Category interface {
@@ -53,6 +53,8 @@ type Transaction interface {
 }
 
 type BudgetHistory interface {
+	Create(ctx context.Context, budgetID string, amount float64) (string, error)
 	CreateTX(ctx context.Context, tx *sqlx.Tx, budgetID string, amount float64) (string, error)
 	GetLastByID(ctx context.Context, budgetID string) (*domain.BudgetHistory, error)
+	List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error)
 }
