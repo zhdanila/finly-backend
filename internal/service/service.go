@@ -20,6 +20,6 @@ func NewService(repos *repository.Repository) *Service {
 		Auth:        auth.NewService(repos.Auth, repos.Budget),
 		Budget:      budget.NewService(repos.Budget),
 		Category:    category.NewService(repos.Category),
-		Transaction: transaction.NewService(repos.Transaction),
+		Transaction: transaction.NewService(repos.Transaction, repos.BudgetHistory),
 	}
 }

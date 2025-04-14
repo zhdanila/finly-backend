@@ -381,11 +381,11 @@
             "type": "string",
             "enum": [
                 "deposit",
-                "withdraw"
+                "withdrawal"
             ],
             "x-enum-varnames": [
                 "Deposit",
-                "Withdraw"
+                "Withdrawal"
             ]
         },
         "finly-backend_internal_service_auth.LoginRequest": {
@@ -531,9 +531,6 @@
         "finly-backend_internal_service_budget.GetBudgetByIDResponse": {
             "type": "object",
             "properties": {
-                "amount": {
-                    "type": "integer"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -626,13 +623,12 @@
                 "amount",
                 "budget_id",
                 "category_id",
-                "note",
                 "type",
                 "userID"
             ],
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "budget_id": {
                     "type": "string"
@@ -646,7 +642,7 @@
                 "type": {
                     "enum": [
                         "deposit",
-                        "withdraw"
+                        "withdrawal"
                     ],
                     "allOf": [
                         {

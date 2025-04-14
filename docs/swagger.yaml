@@ -2,11 +2,11 @@ definitions:
   finly-backend_internal_domain_enums_e_transaction_type.Enum:
     enum:
     - deposit
-    - withdraw
+    - withdrawal
     type: string
     x-enum-varnames:
     - Deposit
-    - Withdraw
+    - Withdrawal
   finly-backend_internal_service_auth.LoginRequest:
     properties:
       email:
@@ -105,8 +105,6 @@ definitions:
     type: object
   finly-backend_internal_service_budget.GetBudgetByIDResponse:
     properties:
-      amount:
-        type: integer
       created_at:
         type: string
       currency:
@@ -167,7 +165,7 @@ definitions:
   finly-backend_internal_service_transaction.CreateTransactionRequest:
     properties:
       amount:
-        type: integer
+        type: number
       budget_id:
         type: string
       category_id:
@@ -179,14 +177,13 @@ definitions:
         - $ref: '#/definitions/finly-backend_internal_domain_enums_e_transaction_type.Enum'
         enum:
         - deposit
-        - withdraw
+        - withdrawal
       userID:
         type: string
     required:
     - amount
     - budget_id
     - category_id
-    - note
     - type
     - userID
     type: object

@@ -16,14 +16,12 @@ type Repository struct {
 }
 
 func NewRepository(postgres *sqlx.DB, redis *redis.Client) *Repository {
-	budgetHistoryRepo := NewBudgetHistoryRepository(postgres, redis)
-
 	return &Repository{
 		Auth:          NewAuthRepository(postgres, redis),
 		Budget:        NewBudgetRepository(postgres, redis),
 		Category:      NewCategoryRepository(postgres, redis),
-		Transaction:   NewTransactionRepository(postgres, redis, budgetHistoryRepo),
-		BudgetHistory: budgetHistoryRepo,
+		Transaction:   NewTransactionRepository(postgres, redis),
+		BudgetHistory: NewBudgetHistoryRepository(postgres, redis),
 	}
 }
 
@@ -50,7 +48,8 @@ type Category interface {
 }
 
 type Transaction interface {
-	Create(ctx context.Context, userID, budgetID, categoryID, transactionType, note string, amount float64) (string, error)
+	CreateTX(ctx context.Context, tx *sqlx.Tx, userID, budgetID, categoryID, transactionType, note string, amount float64) (string, error)
+	GetDB() *sqlx.DB
 }
 
 type BudgetHistory interface {

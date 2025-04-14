@@ -2,32 +2,86 @@ package transaction
 
 import (
 	"context"
+	"finly-backend/internal/domain"
+	"finly-backend/internal/domain/enums/e_transaction_type"
 	"finly-backend/internal/repository"
 	"strings"
 )
 
 type Service struct {
-	repo repository.Transaction
+	transactionRepo   repository.Transaction
+	budgetHistoryRepo repository.BudgetHistory
 }
 
-func NewService(repo repository.Transaction) *Service {
+func NewService(transactionRepo repository.Transaction, budgetHistoryRepo repository.BudgetHistory) *Service {
 	return &Service{
-		repo: repo,
+		transactionRepo:   transactionRepo,
+		budgetHistoryRepo: budgetHistoryRepo,
 	}
 }
 
 func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*CreateTransactionResponse, error) {
 	var err error
 
-	id, err := s.repo.Create(ctx, req.UserID, req.BudgetID, req.CategoryID, req.Type.String(), req.Note, req.Amount)
+	tx, err := s.transactionRepo.GetDB().BeginTxx(ctx, nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "not enough budget") {
-			return nil, errs.NotEnoughBudget
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
 		}
+	}()
+
+	transactionID, err := s.transactionRepo.CreateTX(ctx, tx, req.UserID, req.BudgetID, req.CategoryID, req.Type.String(), req.Note, req.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	lastBudgetHistory, err := s.budgetHistoryRepo.GetLastByID(ctx, req.BudgetID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			lastBudgetHistory = nil
+		} else {
+			return nil, err
+		}
+	}
+
+	newAmount, err := calculateNewAmount(lastBudgetHistory, req.Amount, req.Type.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err = s.budgetHistoryRepo.CreateTX(ctx, tx, req.BudgetID, newAmount); err != nil {
+		return nil, err
+	}
+
+	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
 	return &CreateTransactionResponse{
-		ID: id,
+		ID: transactionID,
 	}, nil
+}
+
+func calculateNewAmount(budgetHistory *domain.BudgetHistory, amount float64, transactionType string) (float64, error) {
+	var newAmount float64
+	switch transactionType {
+	case e_transaction_type.Deposit.String():
+		if budgetHistory == nil {
+			newAmount = amount
+		} else {
+			newAmount = budgetHistory.Balance + amount
+		}
+	case e_transaction_type.Withdrawal.String():
+		if budgetHistory == nil || budgetHistory.Balance < amount {
+			return 0, errs.InsufficientBalance
+		}
+		newAmount = budgetHistory.Balance - amount
+	default:
+		return 0, errs.InvalidTransactionType
+	}
+	return newAmount, nil
 }

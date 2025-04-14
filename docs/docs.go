@@ -392,11 +392,11 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "deposit",
-                "withdraw"
+                "withdrawal"
             ],
             "x-enum-varnames": [
                 "Deposit",
-                "Withdraw"
+                "Withdrawal"
             ]
         },
         "finly-backend_internal_service_auth.LoginRequest": {
@@ -542,9 +542,6 @@ const docTemplate = `{
         "finly-backend_internal_service_budget.GetBudgetByIDResponse": {
             "type": "object",
             "properties": {
-                "amount": {
-                    "type": "integer"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -637,13 +634,12 @@ const docTemplate = `{
                 "amount",
                 "budget_id",
                 "category_id",
-                "note",
                 "type",
                 "userID"
             ],
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "budget_id": {
                     "type": "string"
@@ -657,7 +653,7 @@ const docTemplate = `{
                 "type": {
                     "enum": [
                         "deposit",
-                        "withdraw"
+                        "withdrawal"
                     ],
                     "allOf": [
                         {
