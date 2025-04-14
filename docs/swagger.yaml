@@ -5,7 +5,7 @@ definitions:
         type: string
       password:
         maxLength: 100
-        minLength: 8
+        minLength: 5
         type: string
     required:
     - email
@@ -79,48 +79,6 @@ definitions:
     properties:
       token:
         type: string
-    type: object
-  finly-backend_internal_service_budget.Budget:
-    properties:
-      amount:
-        type: integer
-      currency:
-        type: string
-      name:
-        type: string
-    type: object
-  finly-backend_internal_service_budget.CreateBudgetRequest:
-    properties:
-      currency:
-        type: string
-      name:
-        type: string
-      userID:
-        type: string
-    required:
-    - currency
-    - name
-    - userID
-    type: object
-  finly-backend_internal_service_budget.CreateBudgetResponse:
-    type: object
-  finly-backend_internal_service_budget.DeleteBudgetResponse:
-    type: object
-  finly-backend_internal_service_budget.GetBudgetByIDResponse:
-    properties:
-      amount:
-        type: integer
-      currency:
-        type: string
-      name:
-        type: string
-    type: object
-  finly-backend_internal_service_budget.ListBudgetsByIDResponse:
-    properties:
-      budgets:
-        items:
-          $ref: '#/definitions/finly-backend_internal_service_budget.Budget'
-        type: array
     type: object
   finly-backend_internal_service_category.CreateCategoryRequest:
     properties:
@@ -259,95 +217,6 @@ paths:
       summary: RegisterUser a new user
       tags:
       - User
-  /budget:
-    get:
-      description: Retrieves a list of all budgets for the specified user
-      operationId: list-budgets
-      parameters:
-      - description: User ID
-        in: header
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.ListBudgetsByIDResponse'
-      summary: List all budgets
-      tags:
-      - Budget
-    post:
-      description: Creates a new budget for the user with the provided details
-      operationId: create-budget
-      parameters:
-      - description: Budget Details
-        in: body
-        name: budget
-        required: true
-        schema:
-          $ref: '#/definitions/finly-backend_internal_service_budget.CreateBudgetRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.CreateBudgetResponse'
-      summary: Create a new budget
-      tags:
-      - Budget
-  /budget/{budget_id}:
-    delete:
-      description: Deletes a budget by its ID for the specified user
-      operationId: delete-budget
-      parameters:
-      - description: Budget ID
-        in: path
-        name: budget_id
-        required: true
-        type: string
-      - description: User ID
-        in: header
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.DeleteBudgetResponse'
-      summary: Delete a budget
-      tags:
-      - Budget
-    get:
-      description: Retrieves a budget by its ID for the specified user
-      operationId: get-budget-by-id
-      parameters:
-      - description: Budget ID
-        in: path
-        name: budget_id
-        required: true
-        type: string
-      - description: User ID
-        in: header
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse'
-      summary: Get budget by ID
-      tags:
-      - Budget
   /category:
     get:
       description: Retrieves all categories for the user
