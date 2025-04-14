@@ -1,4 +1,12 @@
 definitions:
+  finly-backend_internal_domain_enums_e_transaction_type.Enum:
+    enum:
+    - deposit
+    - withdraw
+    type: string
+    x-enum-varnames:
+    - Deposit
+    - Withdraw
   finly-backend_internal_service_auth.LoginRequest:
     properties:
       email:
@@ -80,47 +88,35 @@ definitions:
       token:
         type: string
     type: object
-  finly-backend_internal_service_budget.Budget:
-    properties:
-      amount:
-        type: integer
-      currency:
-        type: string
-      name:
-        type: string
-    type: object
   finly-backend_internal_service_budget.CreateBudgetRequest:
     properties:
       currency:
-        type: string
-      name:
         type: string
       userID:
         type: string
     required:
     - currency
-    - name
     - userID
     type: object
   finly-backend_internal_service_budget.CreateBudgetResponse:
-    type: object
-  finly-backend_internal_service_budget.DeleteBudgetResponse:
+    properties:
+      id:
+        type: string
     type: object
   finly-backend_internal_service_budget.GetBudgetByIDResponse:
     properties:
       amount:
         type: integer
+      created_at:
+        type: string
       currency:
         type: string
-      name:
+      id:
         type: string
-    type: object
-  finly-backend_internal_service_budget.ListBudgetsByIDResponse:
-    properties:
-      budgets:
-        items:
-          $ref: '#/definitions/finly-backend_internal_service_budget.Budget'
-        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
   finly-backend_internal_service_category.CreateCategoryRequest:
     properties:
@@ -167,6 +163,37 @@ definitions:
     required:
     - description
     - name
+    type: object
+  finly-backend_internal_service_transaction.CreateTransactionRequest:
+    properties:
+      amount:
+        type: integer
+      budget_id:
+        type: string
+      category_id:
+        type: string
+      note:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/finly-backend_internal_domain_enums_e_transaction_type.Enum'
+        enum:
+        - deposit
+        - withdraw
+      userID:
+        type: string
+    required:
+    - amount
+    - budget_id
+    - category_id
+    - note
+    - type
+    - userID
+    type: object
+  finly-backend_internal_service_transaction.CreateTransactionResponse:
+    properties:
+      id:
+        type: string
     type: object
 info:
   contact: {}
@@ -276,25 +303,6 @@ paths:
       tags:
       - User
   /budget:
-    get:
-      description: Retrieves a list of all budgets for the specified user
-      operationId: list-budgets
-      parameters:
-      - description: User ID
-        in: header
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.ListBudgetsByIDResponse'
-      summary: List all budgets
-      tags:
-      - Budget
     post:
       description: Creates a new budget for the user with the provided details
       operationId: create-budget
@@ -316,30 +324,6 @@ paths:
       tags:
       - Budget
   /budget/{budget_id}:
-    delete:
-      description: Deletes a budget by its ID for the specified user
-      operationId: delete-budget
-      parameters:
-      - description: Budget ID
-        in: path
-        name: budget_id
-        required: true
-        type: string
-      - description: User ID
-        in: header
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.DeleteBudgetResponse'
-      summary: Delete a budget
-      tags:
-      - Budget
     get:
       description: Retrieves a budget by its ID for the specified user
       operationId: get-budget-by-id
@@ -439,4 +423,25 @@ paths:
       summary: Get category by ID
       tags:
       - Category
+  /transaction:
+    post:
+      description: Creates a new transaction for the user with the provided details
+      operationId: create-transaction
+      parameters:
+      - description: Transaction Details
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/finly-backend_internal_service_transaction.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_transaction.CreateTransactionResponse'
+      summary: Create a new transaction
+      tags:
+      - Transaction
 swagger: "2.0"

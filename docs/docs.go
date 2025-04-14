@@ -174,34 +174,6 @@ const docTemplate = `{
             }
         },
         "/budget": {
-            "get": {
-                "description": "Retrieves a list of all budgets for the specified user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Budget"
-                ],
-                "summary": "List all budgets",
-                "operationId": "list-budgets",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/finly-backend_internal_service_budget.ListBudgetsByIDResponse"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Creates a new budget for the user with the provided details",
                 "produces": [
@@ -265,41 +237,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a budget by its ID for the specified user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Budget"
-                ],
-                "summary": "Delete a budget",
-                "operationId": "delete-budget",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Budget ID",
-                        "name": "budget_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/finly-backend_internal_service_budget.DeleteBudgetResponse"
                         }
                     }
                 }
@@ -416,9 +353,52 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/transaction": {
+            "post": {
+                "description": "Creates a new transaction for the user with the provided details",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Create a new transaction",
+                "operationId": "create-transaction",
+                "parameters": [
+                    {
+                        "description": "Transaction Details",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.CreateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.CreateTransactionResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "finly-backend_internal_domain_enums_e_transaction_type.Enum": {
+            "type": "string",
+            "enum": [
+                "deposit",
+                "withdraw"
+            ],
+            "x-enum-varnames": [
+                "Deposit",
+                "Withdraw"
+            ]
+        },
         "finly-backend_internal_service_auth.LoginRequest": {
             "type": "object",
             "required": [
@@ -536,32 +516,14 @@ const docTemplate = `{
                 }
             }
         },
-        "finly-backend_internal_service_budget.Budget": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "integer"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "finly-backend_internal_service_budget.CreateBudgetRequest": {
             "type": "object",
             "required": [
                 "currency",
-                "name",
                 "userID"
             ],
             "properties": {
                 "currency": {
-                    "type": "string"
-                },
-                "name": {
                     "type": "string"
                 },
                 "userID": {
@@ -570,10 +532,12 @@ const docTemplate = `{
             }
         },
         "finly-backend_internal_service_budget.CreateBudgetResponse": {
-            "type": "object"
-        },
-        "finly-backend_internal_service_budget.DeleteBudgetResponse": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
         },
         "finly-backend_internal_service_budget.GetBudgetByIDResponse": {
             "type": "object",
@@ -581,22 +545,20 @@ const docTemplate = `{
                 "amount": {
                     "type": "integer"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "currency": {
                     "type": "string"
                 },
-                "name": {
+                "id": {
                     "type": "string"
-                }
-            }
-        },
-        "finly-backend_internal_service_budget.ListBudgetsByIDResponse": {
-            "type": "object",
-            "properties": {
-                "budgets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/finly-backend_internal_service_budget.Budget"
-                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -665,6 +627,53 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_transaction.CreateTransactionRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "budget_id",
+                "category_id",
+                "note",
+                "type",
+                "userID"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "budget_id": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "deposit",
+                        "withdraw"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/finly-backend_internal_domain_enums_e_transaction_type.Enum"
+                        }
+                    ]
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_transaction.CreateTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 }
             }

@@ -11,4 +11,5 @@ func RegisterRoutes(server *server.Server, services *service.Service) {
 	handler.NewAuth(services).Register(server)
 	handler.NewCategory(services).Register(server)
 	handler.NewBudget(services).Register(server)
+	handler.NewTransaction(services).Register(server)
 }

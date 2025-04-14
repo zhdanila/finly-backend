@@ -2,7 +2,7 @@ package handler
 
 import (
 	"finly-backend/internal/service"
-	"finly-backend/internal/service/budget"
+	"finly-backend/internal/service/transaction"
 	"finly-backend/internal/transport/http/middleware"
 	"finly-backend/pkg/bind"
 	"finly-backend/pkg/server"
@@ -15,31 +15,30 @@ type Transaction struct {
 	service *service.Service
 }
 
-func NewTransaction(s *service.Service) *Budget {
-	return &Budget{
+func NewTransaction(s *service.Service) *Transaction {
+	return &Transaction{
 		service: s,
 	}
 }
 
 func (s *Transaction) Register(server *server.Server) {
-	group := server.Group("/budget", middleware.JWT())
+	group := server.Group("/transaction", middleware.JWT())
 
 	group.POST("", s.Create)
-	group.GET("/:budget_id", s.GetByID)
 }
 
-// @Summary Create a new budget
-// @Description Creates a new budget for the user with the provided details
-// @Tags Budget
-// @ID create-budget
+// @Summary Create a new transaction
+// @Description Creates a new transaction for the user with the provided details
+// @Tags Transaction
+// @ID create-transaction
 // @Produce json
-// @Param budget body budget.CreateBudgetRequest true "Budget Details"
-// @Success 200 {object} budget.CreateBudgetResponse
-// @Router /budget [post]
-func (s *Budget) Create(c echo.Context) error {
+// @Param transaction body transaction.CreateTransactionRequest true "Transaction Details"
+// @Success 200 {object} transaction.CreateTransactionResponse
+// @Router /transaction [post]
+func (s *Transaction) Create(c echo.Context) error {
 	var (
 		err error
-		obj budget.CreateBudgetRequest
+		obj transaction.CreateTransactionRequest
 	)
 
 	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
@@ -47,7 +46,7 @@ func (s *Budget) Create(c echo.Context) error {
 		return err
 	}
 
-	res, err := s.service.Budget.Create(c.Request().Context(), &obj)
+	res, err := s.service.Transaction.Create(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error creating budget", zap.Error(err))
 		return err

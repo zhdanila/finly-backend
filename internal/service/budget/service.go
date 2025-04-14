@@ -40,7 +40,6 @@ func (s *Service) GetByID(ctx context.Context, req *GetBudgetByIDRequest) (*GetB
 		Budget{
 			ID:        budget.ID,
 			UserID:    budget.UserID,
-			Amount:    budget.Amount.Int64,
 			Currency:  budget.Currency,
 			CreatedAt: budget.CreatedAt,
 			UpdatedAt: budget.UpdatedAt,
