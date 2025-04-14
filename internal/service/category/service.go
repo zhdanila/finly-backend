@@ -31,15 +31,19 @@ func (s *Service) Create(ctx context.Context, req *CreateCategoryRequest) (*Crea
 func (s *Service) GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*GetCategoryByIDResponse, error) {
 	var err error
 
-	budget, err := s.repo.GetByID(ctx, req.ID, req.UserID)
+	category, err := s.repo.GetByID(ctx, req.ID, req.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &GetCategoryByIDResponse{
 		Category{
-			Name:        budget.Name,
-			Description: budget.Description,
+			ID:             category.ID,
+			UserID:         category.UserID,
+			Name:           category.Name,
+			Description:    category.Description,
+			IsUserCategory: category.IsUserCategory,
+			CreatedAt:      category.CreatedAt,
 		},
 	}, nil
 }
@@ -55,8 +59,12 @@ func (s *Service) List(ctx context.Context, req *ListCategoriesRequest) (*ListCa
 	categoriesResponse := make([]Category, len(categories))
 	for i, category := range categories {
 		categoriesResponse[i] = Category{
-			Name:        category.Name,
-			Description: category.Description,
+			ID:             category.ID,
+			UserID:         category.UserID,
+			Name:           category.Name,
+			Description:    category.Description,
+			IsUserCategory: category.IsUserCategory,
+			CreatedAt:      category.CreatedAt,
 		}
 	}
 

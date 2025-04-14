@@ -1,8 +1,14 @@
 package category
 
+import "time"
+
 type Category struct {
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description" validate:"required"`
+	ID             string    `json:"id"`
+	UserID         string    `json:"user_id"`
+	Name           string    `json:"name" validate:"required"`
+	Description    string    `json:"description" validate:"required"`
+	IsUserCategory bool      `json:"is_user_category"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type CreateCategoryRequest struct {

@@ -8,7 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const CategoryTable = "user_categories"
+const CategoryTable = "categories"
 
 type CategoryRepository struct {
 	postgres *sqlx.DB
@@ -34,10 +34,10 @@ func (c CategoryRepository) Create(ctx context.Context, userID, name, descriptio
 }
 
 func (c CategoryRepository) GetByID(ctx context.Context, categoryID, userID string) (*domain.Category, error) {
-	query := fmt.Sprintf("SELECT id, user_id, name, description FROM %s WHERE id = $1 AND user_id = $2", CategoryTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND user_id = $2", CategoryTable)
 
 	var category domain.Category
-	if err := c.postgres.QueryRowContext(ctx, query, categoryID, userID).Scan(&category.ID, &category.UserID, &category.Name, &category.Description); err != nil {
+	if err := c.postgres.GetContext(ctx, &category, query, categoryID, userID); err != nil {
 		return nil, err
 	}
 
@@ -45,7 +45,7 @@ func (c CategoryRepository) GetByID(ctx context.Context, categoryID, userID stri
 }
 
 func (c CategoryRepository) List(ctx context.Context, userID string) ([]*domain.Category, error) {
-	query := fmt.Sprintf("SELECT id, user_id, name, description FROM %s WHERE user_id = $1", CategoryTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", CategoryTable)
 
 	var categories []*domain.Category
 	if err := c.postgres.SelectContext(ctx, &categories, query, userID); err != nil {

@@ -9,12 +9,14 @@ import (
 
 type Repository struct {
 	Auth
+	Budget
 	Category
 }
 
 func NewRepository(postgres *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
 		Auth:     NewAuthRepository(postgres, redis),
+		Budget:   NewBudgetRepository(postgres, redis),
 		Category: NewCategoryRepository(postgres, redis),
 	}
 }
@@ -27,6 +29,13 @@ type Auth interface {
 	AddTokenToBlacklist(ctx context.Context, token string, ttlSeconds float64) error
 	IsTokenBlacklisted(ctx context.Context, token string) (bool, error)
 	RemoveToken(ctx context.Context, token string) error
+}
+
+type Budget interface {
+	Create(ctx context.Context, userID, name, currency string) error
+	GetByID(ctx context.Context, budgetID, userID string) (*domain.Budget, error)
+	List(ctx context.Context, userID string) ([]*domain.Budget, error)
+	Delete(ctx context.Context, budgetID, userID string) error
 }
 
 type Category interface {
