@@ -15,7 +15,7 @@ type Service struct {
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Auth:     auth.NewService(repos.Auth),
+		Auth:     auth.NewService(repos.Auth, repos.Budget),
 		Budget:   budget.NewService(repos.Budget),
 		Category: category.NewService(repos.Category),
 	}

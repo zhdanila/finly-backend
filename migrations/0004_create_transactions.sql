@@ -6,9 +6,11 @@ CREATE TABLE transactions
     user_id     UUID           NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     category_id UUID           NOT NULL REFERENCES categories (id) ON DELETE CASCADE,
     amount      DECIMAL(15, 2) NOT NULL,
+    type        VARCHAR(20)    NOT NULL CHECK (type IN ('deposit', 'withdrawal')),
     note        VARCHAR(255),
     created_at  TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
-)
+);
+
 -- +goose StatementEnd
 
 -- +goose Down

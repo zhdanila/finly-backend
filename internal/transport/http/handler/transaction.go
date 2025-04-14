@@ -11,17 +11,17 @@ import (
 	"net/http"
 )
 
-type Budget struct {
+type Transaction struct {
 	service *service.Service
 }
 
-func NewBudget(s *service.Service) *Budget {
+func NewTransaction(s *service.Service) *Budget {
 	return &Budget{
 		service: s,
 	}
 }
 
-func (s *Budget) Register(server *server.Server) {
+func (s *Transaction) Register(server *server.Server) {
 	group := server.Group("/budget", middleware.JWT())
 
 	group.POST("", s.Create)
@@ -50,35 +50,6 @@ func (s *Budget) Create(c echo.Context) error {
 	res, err := s.service.Budget.Create(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error creating budget", zap.Error(err))
-		return err
-	}
-
-	return c.JSON(http.StatusOK, res)
-}
-
-// @Summary Get budget by ID
-// @Description Retrieves a budget by its ID for the specified user
-// @Tags Budget
-// @ID get-budget-by-id
-// @Produce json
-// @Param budget_id path string true "Budget ID"
-// @Param user_id header string true "User ID"
-// @Success 200 {object} budget.GetBudgetByIDResponse
-// @Router /budget/{budget_id} [get]
-func (s *Budget) GetByID(c echo.Context) error {
-	var (
-		err error
-		obj budget.GetBudgetByIDRequest
-	)
-
-	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
-		zap.L().Error("error binding and validating request", zap.Error(err))
-		return err
-	}
-
-	res, err := s.service.Budget.GetByID(c.Request().Context(), &obj)
-	if err != nil {
-		zap.L().Error("error getting budget by id", zap.Error(err))
 		return err
 	}
 

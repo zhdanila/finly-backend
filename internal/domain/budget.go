@@ -8,7 +8,6 @@ import (
 type Budget struct {
 	ID        string        `db:"id"`
 	UserID    string        `db:"user_id"`
-	Name      string        `db:"name"`
 	Amount    sql.NullInt64 `db:"amount"`
 	Currency  string        `db:"currency"`
 	CreatedAt time.Time     `db:"created_at"`

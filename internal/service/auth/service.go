@@ -8,12 +8,14 @@ import (
 )
 
 type Service struct {
-	repo repository.Auth
+	authRepo   repository.Auth
+	budgetRepo repository.Budget
 }
 
-func NewService(repo repository.Auth) *Service {
+func NewService(authRepo repository.Auth, budgetRepo repository.Budget) *Service {
 	return &Service{
-		repo: repo,
+		authRepo:   authRepo,
+		budgetRepo: budgetRepo,
 	}
 }
 
@@ -25,7 +27,7 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*Register
 		return nil, err
 	}
 
-	userID, err := s.repo.Register(ctx, req.Email, hashedPassword, req.FirstName, req.LastName)
+	userID, err := s.authRepo.Register(ctx, req.Email, hashedPassword, req.FirstName, req.LastName)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 			return nil, errs.UserAlreadyExists
@@ -45,7 +47,7 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*Register
 func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	var err error
 
-	user, err := s.repo.GetUserByEmail(ctx, req.Email)
+	user, err := s.authRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
 			return nil, errs.InvalidCredentials
@@ -68,7 +70,7 @@ func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse,
 func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutResponse, error) {
 	var err error
 
-	isBlacklisted, err := s.repo.IsTokenBlacklisted(ctx, req.AuthToken)
+	isBlacklisted, err := s.authRepo.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +79,7 @@ func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutRespon
 		return &LogoutResponse{Message: "Token is already blacklisted"}, nil
 	}
 
-	err = s.repo.AddTokenToBlacklist(ctx, req.AuthToken, security.TokenTTL.Seconds())
+	err = s.authRepo.AddTokenToBlacklist(ctx, req.AuthToken, security.TokenTTL.Seconds())
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +90,7 @@ func (s *Service) Logout(ctx context.Context, req *LogoutRequest) (*LogoutRespon
 func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	var err error
 
-	isBlacklisted, err := s.repo.IsTokenBlacklisted(ctx, req.AuthToken)
+	isBlacklisted, err := s.authRepo.IsTokenBlacklisted(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +109,7 @@ func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*
 		return nil, err
 	}
 
-	err = s.repo.RemoveToken(ctx, req.AuthToken)
+	err = s.authRepo.RemoveToken(ctx, req.AuthToken)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +125,7 @@ func (s *Service) Me(ctx context.Context, req *MeRequest) (*MeResponse, error) {
 		return nil, err
 	}
 
-	userInfo, err := s.repo.GetUserByID(ctx, user.UserID)
+	userInfo, err := s.authRepo.GetUserByID(ctx, user.UserID)
 	if err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
 			return nil, errs.UserNotFound
