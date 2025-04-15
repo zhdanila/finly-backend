@@ -27,6 +27,7 @@ func (s *Transaction) Register(server *server.Server) {
 	group.POST("", s.Create)
 	group.GET("", s.List)
 	group.PATCH("/:id", s.Update)
+	group.DELETE("/:id", s.Delete)
 }
 
 // @Summary Create a new transaction
@@ -106,6 +107,34 @@ func (s *Transaction) Update(c echo.Context) error {
 	}
 
 	res, err := s.service.Transaction.Update(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error list budget", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Delete a transaction
+// @Description Deletes an existing transaction by its ID
+// @Tags Transaction
+// @ID delete-transaction
+// @Produce json
+// @Param id path string true "Transaction ID"
+// @Success 200 {object} transaction.DeleteTransactionResponse
+// @Router /transaction/{id} [delete]
+func (s *Transaction) Delete(c echo.Context) error {
+	var (
+		err error
+		obj transaction.DeleteTransactionRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Transaction.Delete(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error list budget", zap.Error(err))
 		return err

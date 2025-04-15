@@ -370,7 +370,7 @@ const docTemplate = `{
                 "tags": [
                     "Category"
                 ],
-                "summary": "Delete a category",
+                "summary": "DeleteTX a category",
                 "operationId": "delete-category",
                 "parameters": [
                     {
@@ -392,6 +392,34 @@ const docTemplate = `{
             }
         },
         "/transaction": {
+            "get": {
+                "description": "Retrieves a list of transactions for the user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "List transactions",
+                "operationId": "list-transactions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.ListTransactionResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Creates a new transaction for the user with the provided details",
                 "produces": [
@@ -418,6 +446,73 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/finly-backend_internal_service_transaction.CreateTransactionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transaction/{id}": {
+            "put": {
+                "description": "Updates an existing transaction with the provided details",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Update a transaction",
+                "operationId": "update-transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Transaction Details",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.UpdateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.UpdateTransactionResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes an existing transaction by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "DeleteTX a transaction",
+                "operationId": "delete-transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.DeleteTransactionResponse"
                         }
                     }
                 }
@@ -744,6 +839,82 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "finly-backend_internal_service_transaction.DeleteTransactionResponse": {
+            "type": "object"
+        },
+        "finly-backend_internal_service_transaction.ListTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/finly-backend_internal_service_transaction.Transaction"
+                    }
+                }
+            }
+        },
+        "finly-backend_internal_service_transaction.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "budget_id": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/finly-backend_internal_domain_enums_e_transaction_type.Enum"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_transaction.UpdateTransactionRequest": {
+            "type": "object",
+            "required": [
+                "transactionID",
+                "userID"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "budget_id": {
+                    "type": "integer"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "transactionID": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_transaction.UpdateTransactionResponse": {
+            "type": "object"
         }
     }
 }`

@@ -215,6 +215,56 @@ definitions:
       id:
         type: string
     type: object
+  finly-backend_internal_service_transaction.DeleteTransactionResponse:
+    type: object
+  finly-backend_internal_service_transaction.ListTransactionResponse:
+    properties:
+      transactions:
+        items:
+          $ref: '#/definitions/finly-backend_internal_service_transaction.Transaction'
+        type: array
+    type: object
+  finly-backend_internal_service_transaction.Transaction:
+    properties:
+      amount:
+        type: number
+      budget_id:
+        type: string
+      category_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      note:
+        type: string
+      type:
+        $ref: '#/definitions/finly-backend_internal_domain_enums_e_transaction_type.Enum'
+      user_id:
+        type: string
+    type: object
+  finly-backend_internal_service_transaction.UpdateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      budget_id:
+        type: integer
+      category_id:
+        type: string
+      note:
+        type: string
+      transactionID:
+        type: string
+      type:
+        type: string
+      userID:
+        type: string
+    required:
+    - transactionID
+    - userID
+    type: object
+  finly-backend_internal_service_transaction.UpdateTransactionResponse:
+    type: object
 info:
   contact: {}
 paths:
@@ -469,6 +519,25 @@ paths:
       tags:
       - Category
   /transaction:
+    get:
+      description: Retrieves a list of transactions for the user
+      operationId: list-transactions
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_transaction.ListTransactionResponse'
+      summary: List transactions
+      tags:
+      - Transaction
     post:
       description: Creates a new transaction for the user with the provided details
       operationId: create-transaction
@@ -487,6 +556,51 @@ paths:
           schema:
             $ref: '#/definitions/finly-backend_internal_service_transaction.CreateTransactionResponse'
       summary: Create a new transaction
+      tags:
+      - Transaction
+  /transaction/{id}:
+    delete:
+      description: Deletes an existing transaction by its ID
+      operationId: delete-transaction
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_transaction.DeleteTransactionResponse'
+      summary: Delete a transaction
+      tags:
+      - Transaction
+    put:
+      description: Updates an existing transaction with the provided details
+      operationId: update-transaction
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Transaction Details
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/finly-backend_internal_service_transaction.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_transaction.UpdateTransactionResponse'
+      summary: Update a transaction
       tags:
       - Transaction
 swagger: "2.0"

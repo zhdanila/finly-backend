@@ -92,3 +92,24 @@ func (t TransactionRepository) Update(ctx context.Context, transactionID, userID
 	_, err := t.postgres.ExecContext(ctx, query, args...)
 	return err
 }
+
+func (t TransactionRepository) DeleteTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string) error {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1 AND user_id = $2", TransactionTable)
+	_, err := tx.ExecContext(ctx, query, transactionID, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t TransactionRepository) GetByID(ctx context.Context, transactionID, userID string) (*domain.Transaction, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND user_id = $2", TransactionTable)
+
+	var transaction domain.Transaction
+	if err := t.postgres.GetContext(ctx, &transaction, query, transactionID, userID); err != nil {
+		return nil, err
+	}
+
+	return &transaction, nil
+}

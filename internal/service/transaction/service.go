@@ -39,7 +39,7 @@ func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*C
 		return nil, err
 	}
 
-	lastBudgetHistory, err := s.budgetHistoryRepo.GetLastByID(ctx, req.BudgetID)
+	lastBudgetHistory, err := s.budgetHistoryRepo.GetLastByBudgetID(ctx, req.BudgetID)
 	if err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
 			lastBudgetHistory = nil
@@ -53,7 +53,7 @@ func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*C
 		return nil, err
 	}
 
-	if _, err = s.budgetHistoryRepo.CreateTX(ctx, tx, req.BudgetID, newAmount); err != nil {
+	if _, err = s.budgetHistoryRepo.CreateTX(ctx, tx, req.BudgetID, transactionID, newAmount); err != nil {
 		return nil, err
 	}
 
@@ -121,4 +121,65 @@ func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*U
 	}
 
 	return &UpdateTransactionResponse{}, nil
+}
+
+func (s *Service) Delete(ctx context.Context, req *DeleteTransactionRequest) (*DeleteTransactionResponse, error) {
+	var err error
+
+	tx, err := s.transactionRepo.GetDB().BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	transaction, err := s.transactionRepo.GetByID(ctx, req.TransactionID, req.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	difference, err := calculateDifference(transaction)
+	if err != nil {
+		return nil, err
+	}
+
+	budgetHistory, err := s.budgetHistoryRepo.ListFromDate(ctx, transaction.BudgetID, transaction.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, history := range budgetHistory {
+		newAmount := history.Balance + difference
+		if newAmount < 0 {
+			return nil, errs.InsufficientBalance
+		}
+		if err = s.budgetHistoryRepo.UpdateBalanceTX(ctx, tx, history.TransactionID, newAmount); err != nil {
+			return nil, err
+		}
+	}
+
+	if err = s.transactionRepo.DeleteTX(ctx, tx, req.TransactionID, req.UserID); err != nil {
+		return nil, err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &DeleteTransactionResponse{}, nil
+}
+
+func calculateDifference(transaction *domain.Transaction) (float64, error) {
+	switch transaction.TransactionType {
+	case e_transaction_type.Deposit.String():
+		return -transaction.Amount, nil
+	case e_transaction_type.Withdrawal.String():
+		return transaction.Amount, nil
+	default:
+		return 0, errs.InvalidTransactionType
+	}
 }

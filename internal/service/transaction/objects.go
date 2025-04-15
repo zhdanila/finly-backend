@@ -48,3 +48,10 @@ type UpdateTransactionRequest struct {
 }
 
 type UpdateTransactionResponse struct{}
+
+type DeleteTransactionRequest struct {
+	UserID        string `header:"User-Id" validate:"required"`
+	TransactionID string `param:"id" validate:"required"`
+}
+
+type DeleteTransactionResponse struct{}

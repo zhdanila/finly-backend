@@ -5,6 +5,7 @@ import (
 	"finly-backend/internal/domain"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
+	"time"
 )
 
 type Repository struct {
@@ -52,11 +53,15 @@ type Transaction interface {
 	GetDB() *sqlx.DB
 	List(ctx context.Context, userID string) ([]*domain.Transaction, error)
 	Update(ctx context.Context, transactionID, userID string, categoryID, transactionType, note *string, amount *float64) error
+	DeleteTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string) error
+	GetByID(ctx context.Context, transactionID, userID string) (*domain.Transaction, error)
 }
 
 type BudgetHistory interface {
 	Create(ctx context.Context, budgetID string, amount float64) (string, error)
-	CreateTX(ctx context.Context, tx *sqlx.Tx, budgetID string, amount float64) (string, error)
-	GetLastByID(ctx context.Context, budgetID string) (*domain.BudgetHistory, error)
+	CreateTX(ctx context.Context, tx *sqlx.Tx, budgetID, transactionID string, amount float64) (string, error)
+	GetLastByBudgetID(ctx context.Context, budgetID string) (*domain.BudgetHistory, error)
 	List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error)
+	ListFromDate(ctx context.Context, budgetID string, fromDate time.Time) ([]*domain.BudgetHistory, error)
+	UpdateBalanceTX(ctx context.Context, tx *sqlx.Tx, transactionID string, amount float64) error
 }
