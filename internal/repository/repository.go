@@ -53,7 +53,7 @@ type Transaction interface {
 	CreateTX(ctx context.Context, tx *sqlx.Tx, userID, budgetID, categoryID, transactionType, note string, amount float64) (string, error)
 	GetDB() *sqlx.DB
 	List(ctx context.Context, userID string) ([]*domain.Transaction, error)
-	Update(ctx context.Context, transactionID, userID string, categoryID, transactionType, note *string, amount *float64) error
+	UpdateTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string, categoryID, transactionType, note string, amount float64) error
 	DeleteTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string) error
 	GetByID(ctx context.Context, transactionID, userID string) (*domain.Transaction, error)
 }
@@ -64,7 +64,7 @@ type BudgetHistory interface {
 	CreateInitialTX(ctx context.Context, tx *sqlx.Tx, budgetID string, amount float64) (string, error)
 	GetLastByBudgetID(ctx context.Context, budgetID string) (*domain.BudgetHistory, error)
 	List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error)
-	ListFromDate(ctx context.Context, budgetID string, fromDate time.Time) ([]*domain.BudgetHistory, error)
+	ListFromDate(ctx context.Context, budgetID string, fromDate time.Time, inclusive bool) ([]*domain.BudgetHistory, error)
 	UpdateBalanceTX(ctx context.Context, tx *sqlx.Tx, transactionID string, amount float64) error
 	GetCurrentBalance(ctx context.Context, budgetID string) (float64, error)
 }

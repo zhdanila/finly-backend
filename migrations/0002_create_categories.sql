@@ -11,7 +11,6 @@ CREATE TABLE categories
     updated_at       TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
 );
 
--- Функція для оновлення is_user_category
 CREATE OR REPLACE FUNCTION set_is_user_category()
 RETURNS TRIGGER AS $$
 BEGIN

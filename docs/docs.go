@@ -460,7 +460,7 @@ const docTemplate = `{
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "Update a transaction",
+                "summary": "UpdateTX a transaction",
                 "operationId": "update-transaction",
                 "parameters": [
                     {

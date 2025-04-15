@@ -38,13 +38,13 @@ type ListTransactionResponse struct {
 }
 
 type UpdateTransactionRequest struct {
-	UserID        string   `header:"User-Id" validate:"required"`
-	TransactionID string   `param:"id" validate:"required"`
-	CategoryID    *string  `json:"category_id,omitempty"`
-	BudgetID      *int64   `json:"budget_id,omitempty"`
-	Amount        *float64 `json:"amount,omitempty"`
-	Type          *string  `json:"type,omitempty"`
-	Note          *string  `json:"note,omitempty"`
+	UserID        string  `header:"User-Id" validate:"required"`
+	TransactionID string  `param:"id" validate:"required"`
+	CategoryID    string  `json:"category_id,omitempty"`
+	BudgetID      int64   `json:"budget_id,omitempty"`
+	Amount        float64 `json:"amount,omitempty"`
+	Type          string  `json:"type,omitempty"`
+	Note          string  `json:"note,omitempty"`
 }
 
 type UpdateTransactionResponse struct{}

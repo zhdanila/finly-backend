@@ -2,10 +2,13 @@ package transaction
 
 import (
 	"context"
-	"finly-backend/internal/domain"
+	"database/sql"
+	"errors"
 	"finly-backend/internal/domain/enums/e_transaction_type"
 	"finly-backend/internal/repository"
-	"strings"
+	"fmt"
+	"github.com/jmoiron/sqlx"
+	"time"
 )
 
 type Service struct {
@@ -20,103 +23,118 @@ func NewService(transactionRepo repository.Transaction, budgetHistoryRepo reposi
 	}
 }
 
-func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*CreateTransactionResponse, error) {
-	var err error
-
+// withTransaction manages database transactions.
+func (s *Service) withTransaction(ctx context.Context, fn func(*sqlx.Tx) error) error {
 	tx, err := s.transactionRepo.GetDB().BeginTxx(ctx, nil)
 	if err != nil {
-		return nil, err
+		return errs.DatabaseError
 	}
 
 	defer func() {
+		if p := recover(); p != nil {
+			_ = tx.Rollback()
+			panic(p)
+		}
 		if err != nil {
-			tx.Rollback()
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("rollback failed: %v; original error: %v", rbErr, err)
+			}
 		}
 	}()
 
-	transactionID, err := s.transactionRepo.CreateTX(ctx, tx, req.UserID, req.BudgetID, req.CategoryID, req.Type.String(), req.Note, req.Amount)
-	if err != nil {
-		return nil, err
-	}
-
-	lastBudgetHistory, err := s.budgetHistoryRepo.GetLastByBudgetID(ctx, req.BudgetID)
-	if err != nil {
-		if strings.Contains(err.Error(), "no rows in result set") {
-			lastBudgetHistory = nil
-		} else {
-			return nil, err
-		}
-	}
-
-	newAmount, err := calculateNewAmount(lastBudgetHistory, req.Amount, req.Type.String())
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err = s.budgetHistoryRepo.CreateTX(ctx, tx, req.BudgetID, transactionID, newAmount); err != nil {
-		return nil, err
+	if err = fn(tx); err != nil {
+		return err
 	}
 
 	if err = tx.Commit(); err != nil {
+		return errs.DatabaseError
+	}
+	return nil
+}
+
+func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*CreateTransactionResponse, error) {
+	var transactionID string
+	if err := s.withTransaction(ctx, func(tx *sqlx.Tx) error {
+		var err error
+		transactionID, err = s.transactionRepo.CreateTX(ctx, tx, req.UserID, req.BudgetID, req.CategoryID, req.Type.String(), req.Note, req.Amount)
+		if err != nil {
+			return errs.DatabaseError
+		}
+
+		lastBudgetHistory, err := s.budgetHistoryRepo.GetLastByBudgetID(ctx, req.BudgetID)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				lastBudgetHistory = nil
+			} else {
+				return errs.DatabaseError
+			}
+		}
+
+		newAmount, err := calculateNewAmount(lastBudgetHistory, req.Amount, req.Type.String())
+		if err != nil {
+			return errs.InvalidInput
+		}
+
+		_, err = s.budgetHistoryRepo.CreateTX(ctx, tx, req.BudgetID, transactionID, newAmount)
+		if err != nil {
+			return errs.DatabaseError
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
-	return &CreateTransactionResponse{
-		ID: transactionID,
-	}, nil
-}
-
-func calculateNewAmount(budgetHistory *domain.BudgetHistory, amount float64, transactionType string) (float64, error) {
-	var newAmount float64
-	switch transactionType {
-	case e_transaction_type.Deposit.String():
-		if budgetHistory == nil {
-			newAmount = amount
-		} else {
-			newAmount = budgetHistory.Balance + amount
-		}
-	case e_transaction_type.Withdrawal.String():
-		if budgetHistory == nil || budgetHistory.Balance < amount {
-			return 0, errs.InsufficientBalance
-		}
-		newAmount = budgetHistory.Balance - amount
-	default:
-		return 0, errs.InvalidTransactionType
-	}
-	return newAmount, nil
+	return &CreateTransactionResponse{ID: transactionID}, nil
 }
 
 func (s *Service) List(ctx context.Context, req *ListTransactionRequest) (*ListTransactionResponse, error) {
-	var err error
-
 	transactions, err := s.transactionRepo.List(ctx, req.UserID)
 	if err != nil {
-		return nil, err
+		return nil, errs.DatabaseError
 	}
 
-	var transactionList []Transaction
-	for _, transaction := range transactions {
+	transactionList := make([]Transaction, 0, len(transactions))
+	for _, t := range transactions {
 		transactionList = append(transactionList, Transaction{
-			ID:         transaction.ID,
-			UserID:     transaction.UserID,
-			BudgetID:   transaction.BudgetID,
-			CategoryID: transaction.CategoryID,
-			Type:       e_transaction_type.Enum(transaction.TransactionType),
-			Note:       transaction.Note,
-			Amount:     transaction.Amount,
-			CreatedAt:  transaction.CreatedAt,
+			ID:         t.ID,
+			UserID:     t.UserID,
+			BudgetID:   t.BudgetID,
+			CategoryID: t.CategoryID,
+			Type:       e_transaction_type.Enum(t.TransactionType),
+			Note:       t.Note,
+			Amount:     t.Amount,
+			CreatedAt:  t.CreatedAt,
 		})
 	}
 
-	return &ListTransactionResponse{
-		Transactions: transactionList,
-	}, nil
+	return &ListTransactionResponse{Transactions: transactionList}, nil
 }
 
 func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*UpdateTransactionResponse, error) {
-	var err error
+	if err := s.withTransaction(ctx, func(tx *sqlx.Tx) error {
+		if err := s.transactionRepo.UpdateTX(ctx, tx, req.TransactionID, req.UserID, req.CategoryID, req.Type, req.Note, req.Amount); err != nil {
+			return errs.DatabaseError
+		}
 
-	if err = s.transactionRepo.Update(ctx, req.TransactionID, req.UserID, req.CategoryID, req.Type, req.Note, req.Amount); err != nil {
+		transaction, err := s.transactionRepo.GetByID(ctx, req.TransactionID, req.UserID)
+		if err != nil {
+			return errs.DatabaseError
+		}
+
+		if transaction.TransactionType != req.Type || transaction.Amount != req.Amount {
+			difference, err := calculateDifferenceBetweenTransactions(transaction.TransactionType, transaction.Amount, req.Type, req.Amount)
+			if err != nil {
+				return errs.InvalidTransactionType
+			}
+
+			if err := s.updateBudgetHistory(ctx, tx, transaction.BudgetID, transaction.CreatedAt, difference, true); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
@@ -124,62 +142,47 @@ func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*U
 }
 
 func (s *Service) Delete(ctx context.Context, req *DeleteTransactionRequest) (*DeleteTransactionResponse, error) {
-	var err error
-
-	tx, err := s.transactionRepo.GetDB().BeginTxx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
+	if err := s.withTransaction(ctx, func(tx *sqlx.Tx) error {
+		transaction, err := s.transactionRepo.GetByID(ctx, req.TransactionID, req.UserID)
 		if err != nil {
-			tx.Rollback()
+			return errs.DatabaseError
 		}
-	}()
 
-	transaction, err := s.transactionRepo.GetByID(ctx, req.TransactionID, req.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	difference, err := calculateDifference(transaction)
-	if err != nil {
-		return nil, err
-	}
-
-	budgetHistory, err := s.budgetHistoryRepo.ListFromDate(ctx, transaction.BudgetID, transaction.CreatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, history := range budgetHistory {
-		newAmount := history.Balance + difference
-		if newAmount < 0 {
-			return nil, errs.InsufficientBalance
+		difference, err := calculateDifference(transaction.TransactionType, transaction.Amount, false)
+		if err != nil {
+			return errs.InvalidTransactionType
 		}
-		if err = s.budgetHistoryRepo.UpdateBalanceTX(ctx, tx, history.TransactionID.String, newAmount); err != nil {
-			return nil, err
+
+		if err = s.updateBudgetHistory(ctx, tx, transaction.BudgetID, transaction.CreatedAt, difference, false); err != nil {
+			return err
 		}
-	}
 
-	if err = s.transactionRepo.DeleteTX(ctx, tx, req.TransactionID, req.UserID); err != nil {
-		return nil, err
-	}
+		if err = s.transactionRepo.DeleteTX(ctx, tx, req.TransactionID, req.UserID); err != nil {
+			return errs.DatabaseError
+		}
 
-	if err = tx.Commit(); err != nil {
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
 	return &DeleteTransactionResponse{}, nil
 }
 
-func calculateDifference(transaction *domain.Transaction) (float64, error) {
-	switch transaction.TransactionType {
-	case e_transaction_type.Deposit.String():
-		return -transaction.Amount, nil
-	case e_transaction_type.Withdrawal.String():
-		return transaction.Amount, nil
-	default:
-		return 0, errs.InvalidTransactionType
+func (s *Service) updateBudgetHistory(ctx context.Context, tx *sqlx.Tx, budgetID string, fromDate time.Time, difference float64, inclusiveDate bool) error {
+	budgetHistory, err := s.budgetHistoryRepo.ListFromDate(ctx, budgetID, fromDate, inclusiveDate)
+	if err != nil {
+		return errs.DatabaseError
 	}
+
+	for _, history := range budgetHistory {
+		newAmount := history.Balance + difference
+		if newAmount < 0 {
+			return errs.InsufficientBalance
+		}
+		if err := s.budgetHistoryRepo.UpdateBalanceTX(ctx, tx, history.TransactionID.String, newAmount); err != nil {
+			return errs.DatabaseError
+		}
+	}
+	return nil
 }

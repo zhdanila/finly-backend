@@ -78,8 +78,16 @@ func (b BudgetHistoryRepository) List(ctx context.Context, budgetID string) ([]*
 	return histories, nil
 }
 
-func (b BudgetHistoryRepository) ListFromDate(ctx context.Context, budgetID string, fromDate time.Time) ([]*domain.BudgetHistory, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE budget_id = $1 AND created_at > $2 ORDER BY created_at ASC", BudgetHistoryTable)
+func (b BudgetHistoryRepository) ListFromDate(ctx context.Context, budgetID string, fromDate time.Time, inclusive bool) ([]*domain.BudgetHistory, error) {
+	operator := ">"
+	if inclusive {
+		operator = ">="
+	}
+
+	query := fmt.Sprintf(
+		"SELECT * FROM %s WHERE budget_id = $1 AND created_at %s $2 ORDER BY created_at ASC",
+		BudgetHistoryTable, operator,
+	)
 
 	var histories []*domain.BudgetHistory
 	if err := b.postgres.SelectContext(ctx, &histories, query, budgetID, fromDate); err != nil {

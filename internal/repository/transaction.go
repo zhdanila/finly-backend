@@ -2,12 +2,10 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"finly-backend/internal/domain"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
-	"strings"
 )
 
 const TransactionTable = "transactions"
@@ -49,48 +47,13 @@ func (t TransactionRepository) List(ctx context.Context, userID string) ([]*doma
 	return transactions, nil
 }
 
-func (t TransactionRepository) Update(ctx context.Context, transactionID, userID string, categoryID, transactionType, note *string, amount *float64) error {
-	var (
-		setParts []string
-		args     []interface{}
-		argIndex = 1
-	)
-
-	if categoryID != nil {
-		setParts = append(setParts, fmt.Sprintf("category_id = $%d", argIndex))
-		args = append(args, *categoryID)
-		argIndex++
-	}
-	if transactionType != nil {
-		setParts = append(setParts, fmt.Sprintf("transaction_type = $%d", argIndex))
-		args = append(args, *transactionType)
-		argIndex++
-	}
-	if note != nil {
-		setParts = append(setParts, fmt.Sprintf("note = $%d", argIndex))
-		args = append(args, *note)
-		argIndex++
-	}
-	if amount != nil {
-		setParts = append(setParts, fmt.Sprintf("amount = $%d", argIndex))
-		args = append(args, *amount)
-		argIndex++
+func (t TransactionRepository) UpdateTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string, categoryID, transactionType, note string, amount float64) error {
+	query := fmt.Sprintf("UPDATE %s SET category_id = $1, transaction_type = $2, note = $3, amount = $4 WHERE id = $5 AND user_id = $6", TransactionTable)
+	if _, err := tx.ExecContext(ctx, query, categoryID, transactionType, note, amount, transactionID, userID); err != nil {
+		return err
 	}
 
-	if len(setParts) == 0 {
-		return errors.New("no fields to update")
-	}
-
-	args = append(args, transactionID, userID)
-	query := fmt.Sprintf(
-		"UPDATE %s SET %s WHERE id = $%d AND user_id = $%d",
-		TransactionTable,
-		strings.Join(setParts, ", "),
-		argIndex, argIndex+1,
-	)
-
-	_, err := t.postgres.ExecContext(ctx, query, args...)
-	return err
+	return nil
 }
 
 func (t TransactionRepository) DeleteTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string) error {
