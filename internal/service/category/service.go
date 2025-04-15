@@ -18,7 +18,7 @@ func NewService(repo repository.Category) *Service {
 func (s *Service) Create(ctx context.Context, req *CreateCategoryRequest) (*CreateCategoryResponse, error) {
 	var err error
 
-	id, err := s.repo.Create(ctx, req.UserID, req.Name, req.Description)
+	id, err := s.repo.Create(ctx, req.UserID, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,6 @@ func (s *Service) GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*Ge
 			ID:             category.ID,
 			UserID:         category.UserID.String,
 			Name:           category.Name,
-			Description:    category.Description,
 			IsUserCategory: category.IsUserCategory,
 			CreatedAt:      category.CreatedAt,
 		},
@@ -62,7 +61,6 @@ func (s *Service) List(ctx context.Context, req *ListCategoriesRequest) (*ListCa
 			ID:             category.ID,
 			UserID:         category.UserID.String,
 			Name:           category.Name,
-			Description:    category.Description,
 			IsUserCategory: category.IsUserCategory,
 			CreatedAt:      category.CreatedAt,
 		}

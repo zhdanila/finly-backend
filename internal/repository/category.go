@@ -22,11 +22,11 @@ func NewCategoryRepository(postgres *sqlx.DB, redis *redis.Client) *CategoryRepo
 	}
 }
 
-func (c CategoryRepository) Create(ctx context.Context, userID, name, description string) (string, error) {
-	query := fmt.Sprintf("INSERT INTO %s (user_id, name, description) VALUES ($1, $2, $3) RETURNING id", CategoryTable)
+func (c CategoryRepository) Create(ctx context.Context, userID, name string) (string, error) {
+	query := fmt.Sprintf("INSERT INTO %s (user_id, name) VALUES ($1, $2) RETURNING id", CategoryTable)
 
 	var id string
-	if err := c.postgres.QueryRowContext(ctx, query, userID, name, description).Scan(&id); err != nil {
+	if err := c.postgres.QueryRowContext(ctx, query, userID, name).Scan(&id); err != nil {
 		return "", err
 	}
 
