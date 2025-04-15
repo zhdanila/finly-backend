@@ -196,15 +196,15 @@
         },
         "/budget/{budget_id}": {
             "get": {
-                "description": "Retrieves a budget by its ID for the specified user",
+                "description": "Retrieves the current balance of a budget for the specified user",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Budget"
                 ],
-                "summary": "Get budget by ID",
-                "operationId": "get-budget-by-id",
+                "summary": "Get current balance",
+                "operationId": "get-current-balance",
                 "parameters": [
                     {
                         "type": "string",
@@ -225,7 +225,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse"
+                            "$ref": "#/definitions/finly-backend_internal_service_budget.GetCurrentBalanceResponse"
                         }
                     }
                 }
@@ -711,6 +711,14 @@
                     "items": {
                         "$ref": "#/definitions/finly-backend_internal_service_budget.BudgetHistory"
                     }
+                }
+            }
+        },
+        "finly-backend_internal_service_budget.GetCurrentBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
                 }
             }
         },

@@ -157,7 +157,7 @@ func (s *Service) Delete(ctx context.Context, req *DeleteTransactionRequest) (*D
 		if newAmount < 0 {
 			return nil, errs.InsufficientBalance
 		}
-		if err = s.budgetHistoryRepo.UpdateBalanceTX(ctx, tx, history.TransactionID, newAmount); err != nil {
+		if err = s.budgetHistoryRepo.UpdateBalanceTX(ctx, tx, history.TransactionID.String, newAmount); err != nil {
 			return nil, err
 		}
 	}

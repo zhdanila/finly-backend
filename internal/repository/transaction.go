@@ -39,7 +39,7 @@ func (t TransactionRepository) GetDB() *sqlx.DB {
 }
 
 func (t TransactionRepository) List(ctx context.Context, userID string) ([]*domain.Transaction, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", TransactionTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1 ORDER BY created_at DESC", TransactionTable)
 
 	var transactions []*domain.Transaction
 	if err := t.postgres.SelectContext(ctx, &transactions, query, userID); err != nil {

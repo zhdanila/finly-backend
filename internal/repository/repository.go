@@ -37,7 +37,8 @@ type Auth interface {
 }
 
 type Budget interface {
-	Create(ctx context.Context, userID, currency string) (string, error)
+	GetDB() *sqlx.DB
+	CreateTX(ctx context.Context, tx *sqlx.Tx, userID, currency string) (string, error)
 	GetByUserID(ctx context.Context, userID string) (*domain.Budget, error)
 }
 
@@ -60,8 +61,10 @@ type Transaction interface {
 type BudgetHistory interface {
 	Create(ctx context.Context, budgetID string, amount float64) (string, error)
 	CreateTX(ctx context.Context, tx *sqlx.Tx, budgetID, transactionID string, amount float64) (string, error)
+	CreateInitialTX(ctx context.Context, tx *sqlx.Tx, budgetID string, amount float64) (string, error)
 	GetLastByBudgetID(ctx context.Context, budgetID string) (*domain.BudgetHistory, error)
 	List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error)
 	ListFromDate(ctx context.Context, budgetID string, fromDate time.Time) ([]*domain.BudgetHistory, error)
 	UpdateBalanceTX(ctx context.Context, tx *sqlx.Tx, transactionID string, amount float64) error
+	GetCurrentBalance(ctx context.Context, budgetID string) (float64, error)
 }

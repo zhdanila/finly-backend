@@ -16,6 +16,17 @@ type BudgetHistoryRepository struct {
 	redis    *redis.Client
 }
 
+func (b BudgetHistoryRepository) CreateInitialTX(ctx context.Context, tx *sqlx.Tx, budgetID string, amount float64) (string, error) {
+	query := fmt.Sprintf("INSERT INTO %s (budget_id, balance) VALUES ($1, $2) RETURNING id", BudgetHistoryTable)
+
+	var id string
+	if err := tx.QueryRowContext(ctx, query, budgetID, amount).Scan(&id); err != nil {
+		return "", err
+	}
+
+	return id, nil
+}
+
 func NewBudgetHistoryRepository(postgres *sqlx.DB, redis *redis.Client) *BudgetHistoryRepository {
 	return &BudgetHistoryRepository{
 		postgres: postgres,
@@ -86,4 +97,15 @@ func (b BudgetHistoryRepository) UpdateBalanceTX(ctx context.Context, tx *sqlx.T
 	}
 
 	return nil
+}
+
+func (b BudgetHistoryRepository) GetCurrentBalance(ctx context.Context, budgetID string) (float64, error) {
+	query := fmt.Sprintf("SELECT balance FROM %s WHERE budget_id = $1 ORDER BY created_at DESC LIMIT 1", BudgetHistoryTable)
+
+	var balance float64
+	if err := b.postgres.GetContext(ctx, &balance, query, budgetID); err != nil {
+		return 0, err
+	}
+
+	return balance, nil
 }

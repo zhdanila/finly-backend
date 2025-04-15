@@ -182,7 +182,7 @@ const docTemplate = `{
                 "tags": [
                     "Budget"
                 ],
-                "summary": "Create a new budget",
+                "summary": "CreateTX a new budget",
                 "operationId": "create-budget",
                 "parameters": [
                     {
@@ -207,15 +207,15 @@ const docTemplate = `{
         },
         "/budget/{budget_id}": {
             "get": {
-                "description": "Retrieves a budget by its ID for the specified user",
+                "description": "Retrieves the current balance of a budget for the specified user",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Budget"
                 ],
-                "summary": "Get budget by ID",
-                "operationId": "get-budget-by-id",
+                "summary": "Get current balance",
+                "operationId": "get-current-balance",
                 "parameters": [
                     {
                         "type": "string",
@@ -236,7 +236,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse"
+                            "$ref": "#/definitions/finly-backend_internal_service_budget.GetCurrentBalanceResponse"
                         }
                     }
                 }
@@ -310,7 +310,7 @@ const docTemplate = `{
                 "tags": [
                     "Category"
                 ],
-                "summary": "Create a new category",
+                "summary": "CreateTX a new category",
                 "operationId": "create-category",
                 "parameters": [
                     {
@@ -370,7 +370,7 @@ const docTemplate = `{
                 "tags": [
                     "Category"
                 ],
-                "summary": "DeleteTX a category",
+                "summary": "Delete a category",
                 "operationId": "delete-category",
                 "parameters": [
                     {
@@ -428,7 +428,7 @@ const docTemplate = `{
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "Create a new transaction",
+                "summary": "CreateTX a new transaction",
                 "operationId": "create-transaction",
                 "parameters": [
                     {
@@ -497,7 +497,7 @@ const docTemplate = `{
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "DeleteTX a transaction",
+                "summary": "Delete a transaction",
                 "operationId": "delete-transaction",
                 "parameters": [
                     {
@@ -722,6 +722,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/finly-backend_internal_service_budget.BudgetHistory"
                     }
+                }
+            }
+        },
+        "finly-backend_internal_service_budget.GetCurrentBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
                 }
             }
         },

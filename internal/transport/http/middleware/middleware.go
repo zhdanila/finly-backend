@@ -23,7 +23,7 @@ func RecoverMiddleware() echo.MiddlewareFunc {
 func CORSMiddleware() echo.MiddlewareFunc {
 	return middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://localhost:5173"},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.PATCH},
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
 			echo.HeaderContentType,
@@ -45,4 +45,3 @@ func JWT() func(next echo.HandlerFunc) echo.HandlerFunc {
 		},
 	})
 }
-

@@ -21,15 +21,30 @@ func NewService(budgetRepo repository.Budget, budgetHistoryRepo repository.Budge
 func (s *Service) Create(ctx context.Context, req *CreateBudgetRequest) (*CreateBudgetResponse, error) {
 	var err error
 
-	budgetID, err := s.budgetRepo.Create(ctx, req.UserID, req.Currency)
+	tx, err := s.budgetRepo.GetDB().BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	budgetID, err := s.budgetRepo.CreateTX(ctx, tx, req.UserID, req.Currency)
 	if err != nil {
 		return nil, err
 	}
 
 	if req.Amount != 0 {
-		if _, err = s.budgetHistoryRepo.Create(ctx, budgetID, req.Amount); err != nil {
+		if _, err = s.budgetHistoryRepo.CreateInitialTX(ctx, tx, budgetID, req.Amount); err != nil {
 			return nil, err
 		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return nil, err
 	}
 
 	return &CreateBudgetResponse{
@@ -82,5 +97,21 @@ func (s *Service) GetBudgetHistory(ctx context.Context, req *GetBudgetHistoryReq
 
 	return &GetBudgetHistoryResponse{
 		BudgetHistory: budgetHistory,
+	}, nil
+}
+
+func (s *Service) GetCurrentBalance(ctx context.Context, req *GetCurrentBalanceRequest) (*GetCurrentBalanceResponse, error) {
+	var err error
+
+	balance, err := s.budgetHistoryRepo.GetCurrentBalance(ctx, req.BudgetID)
+	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return &GetCurrentBalanceResponse{}, nil
+		}
+		return nil, err
+	}
+
+	return &GetCurrentBalanceResponse{
+		Balance: balance,
 	}, nil
 }

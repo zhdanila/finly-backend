@@ -27,6 +27,7 @@ func (s *Budget) Register(server *server.Server) {
 	group.POST("", s.Create)
 	group.GET("", s.GetByUserID)
 	group.GET("/:budget_id/history", s.GetBudgetHistory)
+	group.GET("/:budget_id/balance", s.GetCurrentBalance)
 }
 
 // @Summary Create a new budget
@@ -109,6 +110,35 @@ func (s *Budget) GetBudgetHistory(c echo.Context) error {
 	res, err := s.service.Budget.GetBudgetHistory(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error getting budget by id", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Get current balance
+// @Description Retrieves the current balance of a budget for the specified user
+// @Tags Budget
+// @ID get-current-balance
+// @Produce json
+// @Param budget_id path string true "Budget ID"
+// @Param user_id header string true "User ID"
+// @Success 200 {object} budget.GetCurrentBalanceResponse
+// @Router /budget/{budget_id}/balance [get]
+func (s *Budget) GetCurrentBalance(c echo.Context) error {
+	var (
+		err error
+		obj budget.GetCurrentBalanceRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Budget.GetCurrentBalance(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error getting current balance", zap.Error(err))
 		return err
 	}
 

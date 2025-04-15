@@ -22,11 +22,11 @@ func NewBudgetRepository(postgres *sqlx.DB, redis *redis.Client) *BudgetReposito
 	}
 }
 
-func (b BudgetRepository) Create(ctx context.Context, userId, currency string) (string, error) {
+func (b BudgetRepository) CreateTX(ctx context.Context, tx *sqlx.Tx, userId, currency string) (string, error) {
 	query := fmt.Sprintf("INSERT INTO %s (user_id, currency) VALUES ($1, $2) RETURNING id", BudgetTable)
 
 	var id string
-	if err := b.postgres.QueryRowContext(ctx, query, userId, currency).Scan(&id); err != nil {
+	if err := tx.QueryRowContext(ctx, query, userId, currency).Scan(&id); err != nil {
 		return "", err
 	}
 
@@ -42,4 +42,8 @@ func (b BudgetRepository) GetByUserID(ctx context.Context, userID string) (*doma
 	}
 
 	return &budget, nil
+}
+
+func (b BudgetRepository) GetDB() *sqlx.DB {
+	return b.postgres
 }

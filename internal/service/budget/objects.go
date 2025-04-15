@@ -44,3 +44,11 @@ type BudgetHistory struct {
 	Balance   float64   `json:"balance"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type GetCurrentBalanceRequest struct {
+	BudgetID string `param:"budget_id" validate:"required"`
+}
+
+type GetCurrentBalanceResponse struct {
+	Balance float64 `json:"balance"`
+}

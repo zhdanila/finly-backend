@@ -139,6 +139,11 @@ definitions:
           $ref: '#/definitions/finly-backend_internal_service_budget.BudgetHistory'
         type: array
     type: object
+  finly-backend_internal_service_budget.GetCurrentBalanceResponse:
+    properties:
+      balance:
+        type: number
+    type: object
   finly-backend_internal_service_category.CreateCategoryRequest:
     properties:
       created_at:
@@ -395,8 +400,8 @@ paths:
       - Budget
   /budget/{budget_id}:
     get:
-      description: Retrieves a budget by its ID for the specified user
-      operationId: get-budget-by-id
+      description: Retrieves the current balance of a budget for the specified user
+      operationId: get-current-balance
       parameters:
       - description: Budget ID
         in: path
@@ -414,8 +419,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse'
-      summary: Get budget by ID
+            $ref: '#/definitions/finly-backend_internal_service_budget.GetCurrentBalanceResponse'
+      summary: Get current balance
       tags:
       - Budget
   /budget/{budget_id}/history:
