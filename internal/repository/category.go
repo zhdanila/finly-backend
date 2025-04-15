@@ -56,11 +56,22 @@ func (c CategoryRepository) List(ctx context.Context, userID string) ([]*domain.
 }
 
 func (c CategoryRepository) Delete(ctx context.Context, categoryID, userID string) error {
-	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1 AND user_id = $2", CategoryTable)
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1 AND user_id = $2 AND is_user_category = true", CategoryTable)
 
 	if _, err := c.postgres.ExecContext(ctx, query, categoryID, userID); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (c CategoryRepository) ListCustom(ctx context.Context, userID string) ([]*domain.Category, error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1 AND is_user_category = true", CategoryTable)
+
+	var categories []*domain.Category
+	if err := c.postgres.SelectContext(ctx, &categories, query, userID); err != nil {
+		return nil, err
+	}
+
+	return categories, nil
 }

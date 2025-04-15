@@ -46,6 +46,7 @@ type Category interface {
 	Create(ctx context.Context, userID, name string) (string, error)
 	GetByID(ctx context.Context, categoryID, userID string) (*domain.Category, error)
 	List(ctx context.Context, userID string) ([]*domain.Category, error)
+	ListCustom(ctx context.Context, userID string) ([]*domain.Category, error)
 	Delete(ctx context.Context, categoryID, userID string) error
 }
 

@@ -42,3 +42,11 @@ type DeleteCategoryRequest struct {
 }
 
 type DeleteCategoryResponse struct{}
+
+type ListCustomCategoriesRequest struct {
+	UserID string `header:"User-Id" validate:"required"`
+}
+
+type ListCustomCategoriesResponse struct {
+	Categories []Category `json:"categories"`
+}

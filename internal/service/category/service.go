@@ -71,6 +71,30 @@ func (s *Service) List(ctx context.Context, req *ListCategoriesRequest) (*ListCa
 	}, nil
 }
 
+func (s *Service) ListCustom(ctx context.Context, req *ListCustomCategoriesRequest) (*ListCustomCategoriesResponse, error) {
+	var err error
+
+	categories, err := s.repo.ListCustom(ctx, req.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	categoriesResponse := make([]Category, len(categories))
+	for i, category := range categories {
+		categoriesResponse[i] = Category{
+			ID:             category.ID,
+			UserID:         category.UserID.String,
+			Name:           category.Name,
+			IsUserCategory: category.IsUserCategory,
+			CreatedAt:      category.CreatedAt,
+		}
+	}
+
+	return &ListCustomCategoriesResponse{
+		Categories: categoriesResponse,
+	}, nil
+}
+
 func (s *Service) Delete(ctx context.Context, req *DeleteCategoryRequest) (*DeleteCategoryResponse, error) {
 	var err error
 

@@ -27,6 +27,7 @@ func (s *Category) Register(server *server.Server) {
 	group.POST("", s.Create)
 	group.GET("/:id", s.GetByID)
 	group.GET("", s.List)
+	group.GET("/custom", s.ListCustom)
 	group.DELETE("/:id", s.Delete)
 }
 
@@ -135,6 +136,32 @@ func (s *Category) Delete(c echo.Context) error {
 	res, err := s.service.Category.Delete(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error deleting category by id", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary List custom categories
+// @Description Retrieves custom categories for the user
+// @Tags Category
+// @ID list-custom-categories
+// @Produce json
+// @Success 200 {object} []category.ListCustomCategoriesResponse
+func (s *Category) ListCustom(c echo.Context) error {
+	var (
+		err error
+		obj category.ListCustomCategoriesRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders(), bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Category.ListCustom(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error list custom categories", zap.Error(err))
 		return err
 	}
 
