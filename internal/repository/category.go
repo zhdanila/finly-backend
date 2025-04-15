@@ -45,7 +45,7 @@ func (c CategoryRepository) GetByID(ctx context.Context, categoryID, userID stri
 }
 
 func (c CategoryRepository) List(ctx context.Context, userID string) ([]*domain.Category, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", CategoryTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE (user_id = $1 AND is_user_category = true) OR is_user_category = false", CategoryTable)
 
 	var categories []*domain.Category
 	if err := c.postgres.SelectContext(ctx, &categories, query, userID); err != nil {

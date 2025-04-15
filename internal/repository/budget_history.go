@@ -56,7 +56,7 @@ func (b BudgetHistoryRepository) Create(ctx context.Context, budgetID string, am
 }
 
 func (b BudgetHistoryRepository) List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE budget_id = $1 ORDER BY created_at DESC", BudgetHistoryTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE budget_id = $1 ORDER BY created_at ASC", BudgetHistoryTable)
 
 	var histories []*domain.BudgetHistory
 	if err := b.postgres.SelectContext(ctx, &histories, query, budgetID); err != nil {

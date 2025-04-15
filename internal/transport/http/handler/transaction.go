@@ -25,6 +25,8 @@ func (s *Transaction) Register(server *server.Server) {
 	group := server.Group("/transaction", middleware.JWT())
 
 	group.POST("", s.Create)
+	group.GET("", s.List)
+	group.PATCH("/:id", s.Update)
 }
 
 // @Summary Create a new transaction
@@ -49,6 +51,63 @@ func (s *Transaction) Create(c echo.Context) error {
 	res, err := s.service.Transaction.Create(c.Request().Context(), &obj)
 	if err != nil {
 		zap.L().Error("error creating budget", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary List transactions
+// @Description Retrieves a list of transactions for the user
+// @Tags Transaction
+// @ID list-transactions
+// @Produce json
+// @Param user_id query string true "User ID"
+// @Success 200 {object} transaction.ListTransactionResponse
+// @Router /transaction [get]
+func (s *Transaction) List(c echo.Context) error {
+	var (
+		err error
+		obj transaction.ListTransactionRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Transaction.List(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error list budget", zap.Error(err))
+		return err
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// @Summary Update a transaction
+// @Description Updates an existing transaction with the provided details
+// @Tags Transaction
+// @ID update-transaction
+// @Produce json
+// @Param id path string true "Transaction ID"
+// @Param transaction body transaction.UpdateTransactionRequest true "Transaction Details"
+// @Success 200 {object} transaction.UpdateTransactionResponse
+// @Router /transaction/{id} [put]
+func (s *Transaction) Update(c echo.Context) error {
+	var (
+		err error
+		obj transaction.UpdateTransactionRequest
+	)
+
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
+		zap.L().Error("error binding and validating request", zap.Error(err))
+		return err
+	}
+
+	res, err := s.service.Transaction.Update(c.Request().Context(), &obj)
+	if err != nil {
+		zap.L().Error("error list budget", zap.Error(err))
 		return err
 	}
 

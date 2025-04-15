@@ -26,7 +26,7 @@ func (s *Budget) Register(server *server.Server) {
 
 	group.POST("", s.Create)
 	group.GET("", s.GetByUserID)
-	group.GET("/:budget_id", s.GetBudgetHistory)
+	group.GET("/:budget_id/history", s.GetBudgetHistory)
 }
 
 // @Summary Create a new budget

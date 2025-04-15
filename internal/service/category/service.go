@@ -39,7 +39,7 @@ func (s *Service) GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*Ge
 	return &GetCategoryByIDResponse{
 		Category{
 			ID:             category.ID,
-			UserID:         category.UserID,
+			UserID:         category.UserID.String,
 			Name:           category.Name,
 			Description:    category.Description,
 			IsUserCategory: category.IsUserCategory,
@@ -60,7 +60,7 @@ func (s *Service) List(ctx context.Context, req *ListCategoriesRequest) (*ListCa
 	for i, category := range categories {
 		categoriesResponse[i] = Category{
 			ID:             category.ID,
-			UserID:         category.UserID,
+			UserID:         category.UserID.String,
 			Name:           category.Name,
 			Description:    category.Description,
 			IsUserCategory: category.IsUserCategory,

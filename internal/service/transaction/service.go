@@ -85,3 +85,40 @@ func calculateNewAmount(budgetHistory *domain.BudgetHistory, amount float64, tra
 	}
 	return newAmount, nil
 }
+
+func (s *Service) List(ctx context.Context, req *ListTransactionRequest) (*ListTransactionResponse, error) {
+	var err error
+
+	transactions, err := s.transactionRepo.List(ctx, req.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	var transactionList []Transaction
+	for _, transaction := range transactions {
+		transactionList = append(transactionList, Transaction{
+			ID:         transaction.ID,
+			UserID:     transaction.UserID,
+			BudgetID:   transaction.BudgetID,
+			CategoryID: transaction.CategoryID,
+			Type:       e_transaction_type.Enum(transaction.TransactionType),
+			Note:       transaction.Note,
+			Amount:     transaction.Amount,
+			CreatedAt:  transaction.CreatedAt,
+		})
+	}
+
+	return &ListTransactionResponse{
+		Transactions: transactionList,
+	}, nil
+}
+
+func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*UpdateTransactionResponse, error) {
+	var err error
+
+	if err = s.transactionRepo.Update(ctx, req.TransactionID, req.UserID, req.CategoryID, req.Type, req.Note, req.Amount); err != nil {
+		return nil, err
+	}
+
+	return &UpdateTransactionResponse{}, nil
+}

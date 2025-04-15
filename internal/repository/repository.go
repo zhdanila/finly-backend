@@ -50,6 +50,8 @@ type Category interface {
 type Transaction interface {
 	CreateTX(ctx context.Context, tx *sqlx.Tx, userID, budgetID, categoryID, transactionType, note string, amount float64) (string, error)
 	GetDB() *sqlx.DB
+	List(ctx context.Context, userID string) ([]*domain.Transaction, error)
+	Update(ctx context.Context, transactionID, userID string, categoryID, transactionType, note *string, amount *float64) error
 }
 
 type BudgetHistory interface {
