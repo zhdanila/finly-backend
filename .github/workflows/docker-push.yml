@@ -25,6 +25,6 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -t finly-backend .
-          docker tag finly-backend danyazhurba/finly:${{ github.sha }}
-          docker push danyazhurba/finly:${{ github.sha }}
+          docker tag finly-backend danyazhurba/finly-backend:${{ github.sha }}
+          docker push danyazhurba/finly-backend:${{ github.sha }}
 
