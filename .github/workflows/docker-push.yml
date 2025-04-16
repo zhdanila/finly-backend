@@ -27,4 +27,11 @@ jobs:
           docker build -t finly-backend .
           docker tag finly-backend danyazhurba/finly-backend:${{ github.sha }}
           docker push danyazhurba/finly-backend:${{ github.sha }}
-
+          
+          docker build -t finly-backend .
+          docker tag finly-backend danyazhurba/finly-backend:${{ github.sha }}
+          docker tag finly-backend danyazhurba/finly-backend:latest
+          docker push danyazhurba/finly-backend:${{ github.sha }}
+          docker push danyazhurba/finly-backend:latest
+        
+          
