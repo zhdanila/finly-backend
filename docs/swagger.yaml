@@ -144,11 +144,24 @@ definitions:
       balance:
         type: number
     type: object
-  finly-backend_internal_service_category.CreateCategoryRequest:
+  finly-backend_internal_service_category.Category:
     properties:
       created_at:
         type: string
-      description:
+      id:
+        type: string
+      is_user_category:
+        type: boolean
+      name:
+        type: string
+      user_id:
+        type: string
+    required:
+    - name
+    type: object
+  finly-backend_internal_service_category.CreateCategoryRequest:
+    properties:
+      created_at:
         type: string
       id:
         type: string
@@ -161,7 +174,6 @@ definitions:
       userID:
         type: string
     required:
-    - description
     - name
     - userID
     type: object
@@ -176,8 +188,6 @@ definitions:
     properties:
       created_at:
         type: string
-      description:
-        type: string
       id:
         type: string
       is_user_category:
@@ -187,8 +197,14 @@ definitions:
       user_id:
         type: string
     required:
-    - description
     - name
+    type: object
+  finly-backend_internal_service_category.ListCustomCategoriesResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/finly-backend_internal_service_category.Category'
+        type: array
     type: object
   finly-backend_internal_service_transaction.CreateTransactionRequest:
     properties:
@@ -399,6 +415,31 @@ paths:
       tags:
       - Budget
   /budget/{budget_id}:
+    get:
+      description: Retrieves a budget by its ID for the specified user
+      operationId: get-budget-by-id
+      parameters:
+      - description: Budget ID
+        in: path
+        name: budget_id
+        required: true
+        type: string
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse'
+      summary: Get budget by ID
+      tags:
+      - Budget
+  /budget/{budget_id}/balance:
     get:
       description: Retrieves the current balance of a budget for the specified user
       operationId: get-current-balance

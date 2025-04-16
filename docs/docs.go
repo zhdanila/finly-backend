@@ -182,7 +182,7 @@ const docTemplate = `{
                 "tags": [
                     "Budget"
                 ],
-                "summary": "CreateTX a new budget",
+                "summary": "Create a new budget",
                 "operationId": "create-budget",
                 "parameters": [
                     {
@@ -206,6 +206,43 @@ const docTemplate = `{
             }
         },
         "/budget/{budget_id}": {
+            "get": {
+                "description": "Retrieves a budget by its ID for the specified user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budget"
+                ],
+                "summary": "Get budget by ID",
+                "operationId": "get-budget-by-id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Budget ID",
+                        "name": "budget_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_budget.GetBudgetByIDResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/budget/{budget_id}/balance": {
             "get": {
                 "description": "Retrieves the current balance of a budget for the specified user",
                 "produces": [
@@ -310,7 +347,7 @@ const docTemplate = `{
                 "tags": [
                     "Category"
                 ],
-                "summary": "CreateTX a new category",
+                "summary": "Create a new category",
                 "operationId": "create-category",
                 "parameters": [
                     {
@@ -428,7 +465,7 @@ const docTemplate = `{
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "CreateTX a new transaction",
+                "summary": "Create a new transaction",
                 "operationId": "create-transaction",
                 "parameters": [
                     {
@@ -460,7 +497,7 @@ const docTemplate = `{
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "UpdateTX a transaction",
+                "summary": "Update a transaction",
                 "operationId": "update-transaction",
                 "parameters": [
                     {
@@ -733,18 +770,37 @@ const docTemplate = `{
                 }
             }
         },
-        "finly-backend_internal_service_category.CreateCategoryRequest": {
+        "finly-backend_internal_service_category.Category": {
             "type": "object",
             "required": [
-                "description",
-                "name",
-                "userID"
+                "name"
             ],
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
-                "description": {
+                "id": {
+                    "type": "string"
+                },
+                "is_user_category": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_category.CreateCategoryRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "userID"
+            ],
+            "properties": {
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
@@ -778,14 +834,10 @@ const docTemplate = `{
         "finly-backend_internal_service_category.GetCategoryByIDResponse": {
             "type": "object",
             "required": [
-                "description",
                 "name"
             ],
             "properties": {
                 "created_at": {
-                    "type": "string"
-                },
-                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -799,6 +851,17 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "finly-backend_internal_service_category.ListCustomCategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/finly-backend_internal_service_category.Category"
+                    }
                 }
             }
         },
