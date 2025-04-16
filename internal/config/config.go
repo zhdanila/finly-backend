@@ -38,10 +38,6 @@ func NewConfig() (*Config, error) {
 }
 
 func (cnf *Config) Load() error {
-	viper.AutomaticEnv()
-	viper.SetConfigFile(".env")
-	_ = viper.ReadInConfig()
-
 	cnf.Env = os.Getenv("ENV")
 	cnf.HTTPPort = os.Getenv("HTTP_PORT")
 
