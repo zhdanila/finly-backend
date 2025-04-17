@@ -44,6 +44,7 @@ func Website() {
 
 	zap.L().Sugar().Infof("Finly backend started on port %s", cfg.HTTPPort)
 	go func() {
+		zap.L().Sugar().Info("Starting server...")
 		if err = srv.Start(); err != nil && !errors.Is(http.ErrServerClosed, err) {
 			zap.L().Sugar().Fatalf("error with starting server: %s", err.Error())
 		}
@@ -52,7 +53,9 @@ func Website() {
 	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	zap.L().Sugar().Info("Waiting for shutdown signal...")
 	<-quit
+	zap.L().Sugar().Info("Shutdown signal received")
 
 	zap.L().Sugar().Info("Finly backend shutting down")
 
