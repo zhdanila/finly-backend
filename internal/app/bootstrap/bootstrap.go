@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"errors"
 	"finly-backend/internal/config"
 	"finly-backend/internal/repository"
 	"finly-backend/internal/service"
@@ -9,7 +10,9 @@ import (
 	"finly-backend/pkg/db"
 	"finly-backend/pkg/logger"
 	"finly-backend/pkg/server"
+	"fmt"
 	"go.uber.org/zap"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,7 +44,7 @@ func Website() {
 
 	zap.L().Sugar().Infof("Finly backend started on port %s", cfg.HTTPPort)
 	go func() {
-		if err = srv.Start(); err != nil {
+		if err = srv.Start(); err != nil && !errors.Is(http.ErrServerClosed, err) {
 			zap.L().Sugar().Fatalf("error with starting server: %s", err.Error())
 		}
 	}()
@@ -53,7 +56,15 @@ func Website() {
 
 	zap.L().Sugar().Info("Finly backend shutting down")
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err = srv.Shutdown(ctx); err != nil {
 		zap.L().Sugar().Fatalf("error with shutting down server: %s", err.Error())
+	}
+
+	if err = postgres.Close(); err != nil {
+		zap.L().Fatal(fmt.Sprintf("error with closing db: %s", err.Error()))
+	}
+
+	if err = redis.Close(); err != nil {
+		zap.L().Fatal(fmt.Sprintf("error with closing db: %s", err.Error()))
 	}
 }
