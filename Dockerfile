@@ -8,21 +8,21 @@ RUN go mod download
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /worker ./cmd/server/main.go
+RUN go install github.com/pressly/goose/v3/cmd/goose@v3.24.1
 
 FROM alpine:3.18
 
-RUN apk add --no-cache wget bash ca-certificates
+RUN apk add --no-cache bash ca-certificates
 
 WORKDIR /root/
 
 COPY --from=builder /worker .
 COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/entrypoint.sh /app/entrypoint.sh
+COPY --from=builder /go/bin/goose /bin/goose
 
 RUN chmod +x /app/entrypoint.sh
-
-RUN wget -O /bin/goose https://github.com/pressly/goose/releases/download/v3.24.1/goose_linux_amd64 && \
-    chmod +x /bin/goose
+RUN chmod +x /bin/goose
 
 EXPOSE 8080
 
