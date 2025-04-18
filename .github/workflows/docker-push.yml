@@ -1,4 +1,4 @@
-name: Docker Push
+name: Deploy and Push Docker Image
 
 on:
   push:
@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      # Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # Set up Docker Buildx and log in to Docker Hub
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -22,16 +24,44 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
+      # Build the Docker image
       - name: Build and push Docker image
         run: |
-          docker build -t finly-backend .
-          docker tag finly-backend danyazhurba/finly-backend:${{ github.sha }}
-          docker push danyazhurba/finly-backend:${{ github.sha }}
+          docker build -t finly-backend -f deployment/Dockerfile .
           
-          docker build -t finly-backend .
           docker tag finly-backend danyazhurba/finly-backend:${{ github.sha }}
           docker tag finly-backend danyazhurba/finly-backend:latest
+          
           docker push danyazhurba/finly-backend:${{ github.sha }}
           docker push danyazhurba/finly-backend:latest
-        
-          
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-build-push
+
+    steps:
+      # Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          PG_USER: ${{ secrets.PG_USER }}
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+        run: |
+          echo "$KUBECONFIG" > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+          kubectl apply -f k8s/cluster-config/deployer-rbac.yaml
+
+          kubectl create secret generic finly-backend-secrets \
+            --from-literal=DB_USERNAME="$PG_USER" \
+            --from-literal=DB_PASSWORD="$PG_PASSWORD" \
+            --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl apply -f k8s/backend/configmap.yaml
+          kubectl apply -f k8s/backend/deployment.yaml
+          kubectl apply -f k8s/backend/ingress.yaml

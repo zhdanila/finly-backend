@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finly-backend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finly-backend
+  template:
+    metadata:
+      labels:
+        app: finly-backend
+    spec:
+      containers:
+        - name: finly-backend
+          image: danyazhurba/finly-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: ENV
+            - name: HTTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: HTTP_PORT
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: DB_NAME
+            - name: DB_SSLMODE
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: DB_SSLMODE
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: REDIS_PORT
+            - name: REDIS_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: finly-backend-config
+                  key: REDIS_DB
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: finly-backend-secrets
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: finly-backend-secrets
+                  key: DB_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: finly-backend-secrets
+                  key: REDIS_PASSWORD
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finly-backend-service
+  namespace: default
+spec:
+  selector:
+    app: finly-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
