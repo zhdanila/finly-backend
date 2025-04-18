@@ -54,8 +54,6 @@ jobs:
           echo "$KUBECONFIG" > kubeconfig
           export KUBECONFIG=kubeconfig
 
-          kubectl apply -f k8s/cluster-config/deployer-rbac.yaml
-
           kubectl create secret generic finly-backend-secrets \
             --from-literal=DB_USERNAME="$PG_USER" \
             --from-literal=DB_PASSWORD="$PG_PASSWORD" \
