@@ -60,6 +60,6 @@ jobs:
             --from-literal=REDIS_PASSWORD="$REDIS_PASSWORD" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl apply -f k8s/backend/configmap.yaml
-          kubectl apply -f k8s/backend/deployment.yaml
-          kubectl apply -f k8s/backend/ingress.yaml
+          kubectl apply -f deployment/k8s/configmap.yaml
+          kubectl apply -f deployment/k8s/deployment.yaml
+          kubectl apply -f deployment/k8s/ingress.yaml
