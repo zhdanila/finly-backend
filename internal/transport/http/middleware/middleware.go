@@ -24,7 +24,7 @@ func CORSMiddleware() echo.MiddlewareFunc {
 	return middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
 			"http://localhost:5173",
-			"http://frontend.finly.click"},
+			"http://finly.click"},
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.PATCH},
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
