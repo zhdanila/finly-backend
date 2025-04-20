@@ -53,10 +53,7 @@ func Website() {
 	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
-	zap.L().Sugar().Info("Waiting for shutdown signal...")
 	<-quit
-	zap.L().Sugar().Info("Shutdown signal received")
-
 	zap.L().Sugar().Info("Finly backend shutting down")
 
 	if err = srv.Shutdown(ctx); err != nil {
