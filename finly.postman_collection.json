@@ -1,0 +1,381 @@
+{
+	"info": {
+		"_postman_id": "5d46c909-6ac8-46a7-8aea-89b3289a199f",
+		"name": "Finly",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "32398328"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Ivan\",\n    \"last_name\": \"Petrenko\",\n    \"email\": \"ivan.petrenkoщ@example.com\",\n    \"password\": \"securePassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/auth/register"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"ivan.petrenko@example.com\",\n    \"password\": \"securePassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/auth/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IiIsImV4cCI6MTc0NDcxOTM1MywidXNlcl9pZCI6IiJ9.eeTgPy9shtFfAw7f_BY-K5-LD9J4as16WTbkGqyoG6A"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"ivan.petrenko@example.com\",\n    \"password\": \"securePassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/auth/logout"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiM2FiMTUxMTctNmVlYi00Y2Q2LWI5ODUtYjgzYWJkYjU1YzVlIiwiZW1haWwiOiJpdmFuLnBldHJlbmtv0YlAZXhhbXBsZS5jb20iLCJleHAiOjE3NDQ3NDAzNzJ9.YlvftcpExtc_N-DzL_qVX5rlQ8A3NA6TiBpFLR1mM-A"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/auth/refresh"
+					},
+					"response": []
+				},
+				{
+					"name": "Me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiM2FiMTUxMTctNmVlYi00Y2Q2LWI5ODUtYjgzYWJkYjU1YzVlIiwiZW1haWwiOiJpdmFuLnBldHJlbmtv0YlAZXhhbXBsZS5jb20iLCJleHAiOjE3NDQ3NDAzNzJ9.YlvftcpExtc_N-DzL_qVX5rlQ8A3NA6TiBpFLR1mM-A"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/auth/refresh"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "category",
+			"item": [
+				{
+					"name": "Create category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Oho category\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/category"
+					},
+					"response": []
+				},
+				{
+					"name": "Get by ID category",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Default\",\n    \"currency\": \"USD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/category/5afcfc4b-9a7a-4b9e-b463-cbff03bfee2d"
+					},
+					"response": []
+				},
+				{
+					"name": "List categories",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/category"
+					},
+					"response": []
+				},
+				{
+					"name": "List custom categories",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/category/custom"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "{{url}}/category/5afcfc4b-9a7a-4b9e-b463-cbff03bfee2d"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "budget",
+			"item": [
+				{
+					"name": "Create budget",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currency\": \"USD\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/budget"
+					},
+					"response": []
+				},
+				{
+					"name": "Get budget by user ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/budget"
+					},
+					"response": []
+				},
+				{
+					"name": "Get budget history",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzljNzI3NTEtN2VkNC00NzUyLTgzYzctODZjZWY3ODVhY2M2IiwiZW1haWwiOiJwb2RAZ21haWwuY29tIiwiZXhwIjoxNzQ0ODkwMTY3fQ.jaE2Jf12WScyCkJMLcT_6rOp1Sq9T8Rt7Yx2XCSL2IQ"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/budget/6bedae92-52eb-4999-9d8b-6c07cbfda226/history"
+					},
+					"response": []
+				},
+				{
+					"name": "Get budget balance",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzljNzI3NTEtN2VkNC00NzUyLTgzYzctODZjZWY3ODVhY2M2IiwiZW1haWwiOiJwb2RAZ21haWwuY29tIiwiZXhwIjoxNzQ0ODkwMTY3fQ.jaE2Jf12WScyCkJMLcT_6rOp1Sq9T8Rt7Yx2XCSL2IQ"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/budget/055e7d13-72bd-42a7-8ae7-d2422fadd31d/balance"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transaction",
+			"item": [
+				{
+					"name": "Create transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmI0NjBmZjYtOWY1OS00NDJjLWI0NzAtMTQ1MjRmM2FlNDA1IiwiZW1haWwiOiJpdmFuQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQ0NzQxNTczfQ.Nnt5mpbwGpQwrBo9GiiMUagUWx-7gGS28JBuIn1NA7M"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"category_id\": \"5ee1f24e-2cc9-4796-a5cb-8b810a7fa2ef\",\n    \"amount\": 500,\n    \"type\": \"withdraw\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/transaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Update transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmMxMjYzMzctMDRiMy00Y2Y1LWJjMDItM2Q3ZjQ0ZDU5NzQ3IiwiZW1haWwiOiJ6aGRhbmlsYUBnbWFpbC5jb20iLCJleHAiOjE3NDQ5NTc4NDl9.43xIBiq76s788T5gJdAkOwiffs0ZFIJF-hIfFyd2fA4"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 40000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/transaction/1cf83b3b-95f8-46d4-a6af-93ce1bb759fb"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmMxMjYzMzctMDRiMy00Y2Y1LWJjMDItM2Q3ZjQ0ZDU5NzQ3IiwiZW1haWwiOiJ6aGRhbmlsYUBnbWFpbC5jb20iLCJleHAiOjE3NDQ4OTA0MDV9.uL0iZrzgEZssiWH3jDgFa0mmqKXNxiigeitK6evTiog"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "{{url}}/transaction/e37f31bf-9c8e-4055-a6c5-56c1d8f32015"
+					},
+					"response": []
+				},
+				{
+					"name": "List transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmMxMjYzMzctMDRiMy00Y2Y1LWJjMDItM2Q3ZjQ0ZDU5NzQ3IiwiZW1haWwiOiJ6aGRhbmlsYUBnbWFpbC5jb20iLCJleHAiOjE3NDQ5NTc4NDl9.43xIBiq76s788T5gJdAkOwiffs0ZFIJF-hIfFyd2fA4"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/transaction"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
