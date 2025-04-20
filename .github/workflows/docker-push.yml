@@ -45,7 +45,7 @@ jobs:
 
       - name: Replace image tag with Git SHA
         run: |
-          sed -i "s|danyazhurba/finly-frontend:__IMAGE_TAG__|danyazhurba/finly-backend:${{ github.sha }}|g" deployment/k8s/deployment.yaml        
+          sed -i "s|danyazhurba/finly-backend:__IMAGE_TAG__|danyazhurba/finly-backend:${{ github.sha }}|g" deployment/k8s/deployment.yaml        
 
       - name: Deploy to Kubernetes
         env:
