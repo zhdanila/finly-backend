@@ -27,7 +27,7 @@ func (s *Auth) Register(server *server.Server) {
 	group.POST("/login", s.Login)
 	group.POST("/logout", s.Logout)
 	group.POST("/refresh", s.Refresh)
-	group.POST("/me", s.Me)
+	group.GET("/me", s.Me)
 }
 
 // @Summary RegisterUser a new user
@@ -149,7 +149,7 @@ func (s *Auth) Refresh(c echo.Context) error {
 // @Produce json
 // @Param token header string true "Authentication Token"
 // @Success 200 {object} auth.MeResponse
-// @Router /auth/me [post]
+// @Router /auth/me [get]
 func (s *Auth) Me(c echo.Context) error {
 	var (
 		err error

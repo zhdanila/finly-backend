@@ -332,7 +332,7 @@ paths:
       tags:
       - User
   /auth/me:
-    post:
+    get:
       description: Retrieves information about the currently authenticated user
       operationId: get-user-info
       parameters:

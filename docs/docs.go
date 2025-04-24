@@ -80,7 +80,7 @@ const docTemplate = `{
             }
         },
         "/auth/me": {
-            "post": {
+            "get": {
                 "description": "Retrieves information about the currently authenticated user",
                 "produces": [
                     "application/json"

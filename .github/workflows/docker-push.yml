@@ -30,10 +30,7 @@ jobs:
           docker build -t finly-backend -f deployment/Dockerfile .
           
           docker tag finly-backend danyazhurba/finly-backend:${{ github.sha }}
-          docker tag finly-backend danyazhurba/finly-backend:latest
-          
           docker push danyazhurba/finly-backend:${{ github.sha }}
-          docker push danyazhurba/finly-backend:latest
 
   deploy:
     runs-on: ubuntu-latest
