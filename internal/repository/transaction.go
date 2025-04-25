@@ -31,6 +31,23 @@ func NewTransactionRepository(postgres *sqlx.DB, redis *redis.Client) *Transacti
 	}
 }
 
+func (t TransactionRepository) InvalidateCache(ctx context.Context, userID, transactionID string) error {
+	keys := []string{
+		fmt.Sprintf("transactions:user:%s", userID),
+		fmt.Sprintf("transaction:%s:user:%s", transactionID, userID),
+	}
+	if err := t.redis.Del(ctx, keys...).Err(); err != nil {
+		zap.L().Sugar().Warnf("Failed to invalidate cache, userID: %s, transactionID: %s, error: %v", userID, transactionID, err)
+		return err
+	}
+	zap.L().Sugar().Infof("Cache invalidated, userID: %s, transactionID: %s", userID, transactionID)
+	return nil
+}
+
+func (t TransactionRepository) GetDB() *sqlx.DB {
+	return t.postgres
+}
+
 func (t TransactionRepository) CreateTX(ctx context.Context, tx *sqlx.Tx, userID string, budgetID string, categoryID string, transactionType string, note string, amount float64) (string, error) {
 	query := fmt.Sprintf("INSERT INTO %s (user_id, budget_id, category_id, amount, transaction_type, note) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id", TransactionTable)
 	var transactionID string
@@ -43,10 +60,6 @@ func (t TransactionRepository) CreateTX(ctx context.Context, tx *sqlx.Tx, userID
 	}
 
 	return transactionID, nil
-}
-
-func (t TransactionRepository) GetDB() *sqlx.DB {
-	return t.postgres
 }
 
 func (t TransactionRepository) List(ctx context.Context, userID string) ([]*domain.Transaction, error) {
@@ -130,7 +143,7 @@ func (t TransactionRepository) GetByID(ctx context.Context, transactionID, userI
 		zap.L().Sugar().Infof("Cache miss for transaction, key: %s", cacheKey)
 	}
 
-	query := "SELECT * FROM transactions WHERE id = $1 AND user_id = $2"
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND user_id = $2", TransactionTable)
 	if err = t.postgres.GetContext(ctx, &transaction, query, transactionID, userID); err != nil {
 		zap.L().Sugar().Errorf("Failed to fetch transaction from DB, userID: %s, transactionID: %s, error: %v", userID, transactionID, err)
 		return nil, err
@@ -148,17 +161,4 @@ func (t TransactionRepository) GetByID(ctx context.Context, transactionID, userI
 	}
 
 	return &transaction, nil
-}
-
-func (t TransactionRepository) InvalidateCache(ctx context.Context, userID, transactionID string) error {
-	keys := []string{
-		fmt.Sprintf("transactions:user:%s", userID),
-		fmt.Sprintf("transaction:%s:user:%s", transactionID, userID),
-	}
-	if err := t.redis.Del(ctx, keys...).Err(); err != nil {
-		zap.L().Sugar().Warnf("Failed to invalidate cache, userID: %s, transactionID: %s, error: %v", userID, transactionID, err)
-		return err
-	}
-	zap.L().Sugar().Infof("Cache invalidated, userID: %s, transactionID: %s", userID, transactionID)
-	return nil
 }

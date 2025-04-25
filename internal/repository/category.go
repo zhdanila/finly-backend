@@ -32,6 +32,20 @@ func NewCategoryRepository(postgres *sqlx.DB, redis *redis.Client) *CategoryRepo
 	}
 }
 
+func (c CategoryRepository) InvalidateCache(ctx context.Context, userID, categoryID string) error {
+	keys := []string{
+		fmt.Sprintf("category:%s:user:%s", categoryID, userID),
+		fmt.Sprintf("categories:user:%s", userID),
+		fmt.Sprintf("categories:custom:user:%s", userID),
+	}
+	if err := c.redis.Del(ctx, keys...).Err(); err != nil {
+		zap.L().Sugar().Warnf("Failed to invalidate cache for userID: %s, categoryID: %s, error: %v", userID, categoryID, err)
+		return err
+	}
+	zap.L().Sugar().Infof("Cache invalidated for userID: %s, categoryID: %s", userID, categoryID)
+	return nil
+}
+
 func (c CategoryRepository) Create(ctx context.Context, userID, name string) (string, error) {
 	query := fmt.Sprintf("INSERT INTO %s (user_id, name) VALUES ($1, $2) RETURNING id", CategoryTable)
 
@@ -155,18 +169,4 @@ func (c CategoryRepository) ListCustom(ctx context.Context, userID string) ([]*d
 	}
 
 	return categories, nil
-}
-
-func (c CategoryRepository) InvalidateCache(ctx context.Context, userID, categoryID string) error {
-	keys := []string{
-		fmt.Sprintf("category:%s:user:%s", categoryID, userID),
-		fmt.Sprintf("categories:user:%s", userID),
-		fmt.Sprintf("categories:custom:user:%s", userID),
-	}
-	if err := c.redis.Del(ctx, keys...).Err(); err != nil {
-		zap.L().Sugar().Warnf("Failed to invalidate cache for userID: %s, categoryID: %s, error: %v", userID, categoryID, err)
-		return err
-	}
-	zap.L().Sugar().Infof("Cache invalidated for userID: %s, categoryID: %s", userID, categoryID)
-	return nil
 }

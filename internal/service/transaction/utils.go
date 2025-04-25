@@ -3,14 +3,7 @@ package transaction
 import (
 	"finly-backend/internal/domain"
 	"finly-backend/internal/domain/enums/e_transaction_type"
-	"github.com/jmoiron/sqlx"
 )
-
-func rollbackOnError(tx *sqlx.Tx, err *error) {
-	if *err != nil {
-		_ = tx.Rollback()
-	}
-}
 
 func calculateDifference(transactionType string, amount float64, invert bool) (float64, error) {
 	switch transactionType {
