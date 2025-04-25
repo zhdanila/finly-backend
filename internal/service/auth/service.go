@@ -122,6 +122,9 @@ func (s *Service) Me(ctx context.Context, req *MeRequest) (*MeResponse, error) {
 
 	user, err := security.GetUserFromToken(req.AuthToken)
 	if err != nil {
+		if strings.Contains(err.Error(), "token is expired") {
+			return nil, errs.TokenExpired
+		}
 		return nil, err
 	}
 

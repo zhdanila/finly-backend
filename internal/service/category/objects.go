@@ -25,7 +25,7 @@ type GetCategoryByIDRequest struct {
 }
 
 type GetCategoryByIDResponse struct {
-	Category
+	*Category
 }
 
 type ListCategoriesRequest struct {

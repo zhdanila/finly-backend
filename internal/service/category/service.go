@@ -3,6 +3,7 @@ package category
 import (
 	"context"
 	"finly-backend/internal/repository"
+	"strings"
 )
 
 type Service struct {
@@ -33,11 +34,15 @@ func (s *Service) GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*Ge
 
 	category, err := s.repo.GetByID(ctx, req.ID, req.UserID)
 	if err != nil {
+		if strings.Contains(err.Error(), "no rows in result set") {
+			return &GetCategoryByIDResponse{}, nil
+		}
+
 		return nil, err
 	}
 
 	return &GetCategoryByIDResponse{
-		Category{
+		&Category{
 			ID:             category.ID,
 			UserID:         category.UserID.String,
 			Name:           category.Name,
