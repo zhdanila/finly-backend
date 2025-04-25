@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"finly-backend/internal/domain"
+	"finly-backend/pkg/db"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -12,8 +12,11 @@ import (
 )
 
 const (
-	BudgetTable                = "budgets"
+	BudgetTable = "budgets"
+
 	TTL_GetBudgetByUserIDCache = 30 * time.Minute
+
+	cacheKeyBudgetByUser = "budget:user:%s"
 )
 
 type BudgetRepository struct {
@@ -28,68 +31,70 @@ func NewBudgetRepository(postgres *sqlx.DB, redis *redis.Client) *BudgetReposito
 	}
 }
 
-func (b BudgetRepository) InvalidateCache(ctx context.Context, userID string) error {
-	cacheKey := fmt.Sprintf("budget:user:%s", userID)
-	if err := b.redis.Del(ctx, cacheKey).Err(); err != nil {
+func (b *BudgetRepository) GetDB() *sqlx.DB {
+	return b.postgres
+}
+
+func (b *BudgetRepository) cacheKeys(userID string) []string {
+	return []string{
+		fmt.Sprintf(cacheKeyBudgetByUser, userID),
+	}
+}
+
+func (b *BudgetRepository) InvalidateCache(ctx context.Context, userID string) error {
+	zap.L().Sugar().Infof("Invalidating cache for userID: %s", userID)
+
+	keys := b.cacheKeys(userID)
+	if err := b.redis.Del(ctx, keys...).Err(); err != nil {
 		zap.L().Sugar().Warnf("Failed to invalidate cache for userID: %s, error: %v", userID, err)
 		return err
 	}
+
 	zap.L().Sugar().Infof("Cache invalidated for userID: %s", userID)
 	return nil
 }
 
-func (b BudgetRepository) CreateTX(ctx context.Context, tx *sqlx.Tx, userID, currency string) (string, error) {
+func (b *BudgetRepository) CreateTX(ctx context.Context, tx *sqlx.Tx, userID, currency string) (string, error) {
 	query := fmt.Sprintf("INSERT INTO %s (user_id, currency) VALUES ($1, $2) RETURNING id", BudgetTable)
 
 	var id string
 	if err := tx.QueryRowContext(ctx, query, userID, currency).Scan(&id); err != nil {
+		zap.L().Sugar().Errorf("Failed to create budget for userID: %s, currency: %s, error: %v", userID, currency, err)
 		return "", err
 	}
 
 	if err := b.InvalidateCache(ctx, userID); err != nil {
 		zap.L().Sugar().Warnf("Failed to invalidate cache after create, userID: %s, error: %v", userID, err)
+	} else {
+		zap.L().Sugar().Infof("Cache invalidated after create for userID: %s", userID)
 	}
 
 	return id, nil
 }
 
-func (b BudgetRepository) GetByUserID(ctx context.Context, userID string) (*domain.Budget, error) {
-	cacheKey := fmt.Sprintf("budget:user:%s", userID)
-
-	var budget domain.Budget
-	cachedBudget, err := b.redis.Get(ctx, cacheKey).Result()
-	if err == nil {
-		if err = json.Unmarshal([]byte(cachedBudget), &budget); err == nil {
-			zap.L().Sugar().Infof("Cache hit for budget, key: %s", cacheKey)
-			return &budget, nil
-		}
-		zap.L().Sugar().Warnf("Failed to unmarshal cached budget, key: %s, error: %v", cacheKey, err)
-	} else if err != redis.Nil {
-		zap.L().Sugar().Errorf("Redis error for key: %s, userID: %s, error: %v", cacheKey, userID, err)
-	} else {
-		zap.L().Sugar().Infof("Cache miss for budget, key: %s", cacheKey)
+func (b *BudgetRepository) GetByUserID(ctx context.Context, userID string) (*domain.Budget, error) {
+	if userID == "" {
+		return nil, fmt.Errorf("userID cannot be empty")
 	}
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", BudgetTable)
-	if err = b.postgres.GetContext(ctx, &budget, query, userID); err != nil {
-		zap.L().Sugar().Errorf("Failed to fetch budget from DB, userID: %s, error: %v", userID, err)
+	cacheKey := fmt.Sprintf(cacheKeyBudgetByUser, userID)
+
+	fetch := func() (*domain.Budget, error) {
+		var budget domain.Budget
+		query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1", BudgetTable)
+		if err := b.postgres.GetContext(ctx, &budget, query, userID); err != nil {
+			zap.L().Sugar().Errorf("Failed to fetch budget from DB, userID: %s, error: %v", userID, err)
+			return nil, err
+		}
+		zap.L().Sugar().Infof("Fetched budget from DB for userID: %s, budgetID: %s", userID, budget.ID)
+		return &budget, nil
+	}
+
+	result, err := db.WithCache(ctx, b.redis, cacheKey, TTL_GetBudgetByUserIDCache, fetch)
+	if err != nil {
 		return nil, err
 	}
 
-	serializedBudget, err := json.Marshal(budget)
-	if err == nil {
-		if err = b.redis.Set(ctx, cacheKey, serializedBudget, TTL_GetBudgetByUserIDCache).Err(); err != nil {
-			zap.L().Sugar().Errorf("Failed to cache budget, key: %s, userID: %s, error: %v", cacheKey, userID, err)
-		} else {
-			zap.L().Sugar().Infof("Successfully cached budget, key: %s", cacheKey)
-		}
-	} else {
-		zap.L().Sugar().Warnf("Failed to marshal budget for caching, userID: %s, error: %v", userID, err)
-	}
-
-	return &budget, nil
-}
-
-func (b BudgetRepository) GetDB() *sqlx.DB {
-	return b.postgres
+	zap.L().Sugar().Infof("Fetched budget with cache for userID: %s", userID)
+	return result, nil
 }

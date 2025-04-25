@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"finly-backend/internal/domain"
+	"finly-backend/pkg/db"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -16,6 +16,9 @@ const (
 	UsersTable = "users"
 
 	TTL_GetUserCache = 30 * time.Minute
+
+	cacheKeyUserByID    = "user:id:%s"
+	cacheKeyUserByEmail = "user:email:%s"
 )
 
 type AuthRepository struct {
@@ -30,15 +33,31 @@ func NewAuthRepository(postgres *sqlx.DB, redis *redis.Client) *AuthRepository {
 	}
 }
 
-func (a *AuthRepository) InvalidateCache(ctx context.Context, userID, email string) error {
-	keys := []string{
-		fmt.Sprintf("user:id:%s", userID),
-		fmt.Sprintf("user:email:%s", email),
+func (a *AuthRepository) cacheKeys(userID, email string) []string {
+	keys := []string{}
+	if userID != "" {
+		keys = append(keys, fmt.Sprintf(cacheKeyUserByID, userID))
 	}
+	if email != "" {
+		keys = append(keys, fmt.Sprintf(cacheKeyUserByEmail, email))
+	}
+	return keys
+}
+
+func (a *AuthRepository) InvalidateCache(ctx context.Context, userID, email string) error {
+	zap.L().Sugar().Infof("Invalidating cache for userID: %s, email: %s", userID, email)
+
+	keys := a.cacheKeys(userID, email)
+	if len(keys) == 0 {
+		zap.L().Sugar().Info("No cache keys to invalidate")
+		return nil
+	}
+
 	if err := a.redis.Del(ctx, keys...).Err(); err != nil {
 		zap.L().Sugar().Warnf("Failed to invalidate cache for userID: %s, email: %s, error: %v", userID, email, err)
 		return err
 	}
+
 	zap.L().Sugar().Infof("Cache invalidated for userID: %s, email: %s", userID, email)
 	return nil
 }
@@ -49,84 +68,64 @@ func (a *AuthRepository) Register(ctx context.Context, email, passwordHash, firs
 	var userID string
 	err := a.postgres.QueryRowContext(ctx, query, email, passwordHash, firstName, lastName).Scan(&userID)
 	if err != nil {
+		zap.L().Sugar().Errorf("Failed to register user, email: %s, error: %v", email, err)
 		return "", err
 	}
 
+	zap.L().Sugar().Infof("User registered, ID: %s, email: %s", userID, email)
 	return userID, nil
 }
 
 func (a *AuthRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	cacheKey := fmt.Sprintf("user:email:%s", email)
-
-	var user domain.User
-	cachedUser, err := a.redis.Get(ctx, cacheKey).Result()
-	if err == nil {
-		if err = json.Unmarshal([]byte(cachedUser), &user); err == nil {
-			zap.L().Sugar().Infof("Cache hit for user by email, key: %s", cacheKey)
-			return &user, nil
-		}
-		zap.L().Sugar().Warnf("Failed to unmarshal cached user, key: %s, error: %v", cacheKey, err)
-	} else if !errors.Is(err, redis.Nil) {
-		zap.L().Sugar().Errorf("Redis error for key: %s, email: %s, error: %v", cacheKey, email, err)
-	} else {
-		zap.L().Sugar().Infof("Cache miss for user by email, key: %s", cacheKey)
+	if email == "" {
+		return nil, fmt.Errorf("email cannot be empty")
 	}
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE email = $1", UsersTable)
-	if err = a.postgres.GetContext(ctx, &user, query, email); err != nil {
-		zap.L().Sugar().Errorf("Failed to fetch user from DB, email: %s, error: %v", email, err)
+	cacheKey := fmt.Sprintf(cacheKeyUserByEmail, email)
+
+	fetch := func() (*domain.User, error) {
+		var user domain.User
+		query := fmt.Sprintf("SELECT * FROM %s WHERE email = $1", UsersTable)
+		if err := a.postgres.GetContext(ctx, &user, query, email); err != nil {
+			zap.L().Sugar().Errorf("Failed to fetch user from DB, email: %s, error: %v", email, err)
+			return nil, err
+		}
+		zap.L().Sugar().Infof("Fetched user from DB by email: %s", email)
+		return &user, nil
+	}
+
+	result, err := db.WithCache(ctx, a.redis, cacheKey, TTL_GetUserCache, fetch)
+	if err != nil {
 		return nil, err
 	}
 
-	serializedUser, err := json.Marshal(user)
-	if err == nil {
-		if err = a.redis.Set(ctx, cacheKey, serializedUser, TTL_GetUserCache).Err(); err != nil {
-			zap.L().Sugar().Errorf("Failed to cache user, key: %s, email: %s, error: %v", cacheKey, email, err)
-		} else {
-			zap.L().Sugar().Infof("Successfully cached user, key: %s", cacheKey)
-		}
-	} else {
-		zap.L().Sugar().Warnf("Failed to marshal user for caching, email: %s, error: %v", email, err)
-	}
-
-	return &user, nil
+	return result, nil
 }
 
 func (a *AuthRepository) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
-	cacheKey := fmt.Sprintf("user:id:%s", id)
-
-	var user domain.User
-	cachedUser, err := a.redis.Get(ctx, cacheKey).Result()
-	if err == nil {
-		if err = json.Unmarshal([]byte(cachedUser), &user); err == nil {
-			zap.L().Sugar().Infof("Cache hit for user by ID, key: %s", cacheKey)
-			return &user, nil
-		}
-		zap.L().Sugar().Warnf("Failed to unmarshal cached user, key: %s, error: %v", cacheKey, err)
-	} else if !errors.Is(err, redis.Nil) {
-		zap.L().Sugar().Errorf("Redis error for key: %s, id: %s, error: %v", cacheKey, id, err)
-	} else {
-		zap.L().Sugar().Infof("Cache miss for user by ID, key: %s", cacheKey)
+	if id == "" {
+		return nil, fmt.Errorf("id cannot be empty")
 	}
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", UsersTable)
-	if err = a.postgres.GetContext(ctx, &user, query, id); err != nil {
-		zap.L().Sugar().Errorf("Failed to fetch user from DB, id: %s, error: %v", id, err)
+	cacheKey := fmt.Sprintf(cacheKeyUserByID, id)
+
+	fetch := func() (*domain.User, error) {
+		var user domain.User
+		query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", UsersTable)
+		if err := a.postgres.GetContext(ctx, &user, query, id); err != nil {
+			zap.L().Sugar().Errorf("Failed to fetch user from DB, id: %s, error: %v", id, err)
+			return nil, err
+		}
+		zap.L().Sugar().Infof("Fetched user from DB by ID: %s", id)
+		return &user, nil
+	}
+
+	result, err := db.WithCache(ctx, a.redis, cacheKey, TTL_GetUserCache, fetch)
+	if err != nil {
 		return nil, err
 	}
 
-	serializedUser, err := json.Marshal(user)
-	if err == nil {
-		if err = a.redis.Set(ctx, cacheKey, serializedUser, TTL_GetUserCache).Err(); err != nil {
-			zap.L().Sugar().Errorf("Failed to cache user, key: %s, id: %s, error: %v", cacheKey, id, err)
-		} else {
-			zap.L().Sugar().Infof("Successfully cached user, key: %s", cacheKey)
-		}
-	} else {
-		zap.L().Sugar().Warnf("Failed to marshal user for caching, id: %s, error: %v", id, err)
-	}
-
-	return &user, nil
+	return result, nil
 }
 
 func (a *AuthRepository) AddTokenToBlacklist(ctx context.Context, token string, ttlSeconds float64) error {
@@ -141,10 +140,13 @@ func (a *AuthRepository) AddTokenToBlacklist(ctx context.Context, token string, 
 func (a *AuthRepository) IsTokenBlacklisted(ctx context.Context, token string) (bool, error) {
 	val, err := a.redis.Get(ctx, token).Result()
 	if errors.Is(err, redis.Nil) {
+		zap.L().Sugar().Infof("Token not blacklisted, token: %s", token)
 		return false, nil
 	} else if err != nil {
+		zap.L().Sugar().Errorf("Redis error while checking blacklist, token: %s, error: %v", token, err)
 		return false, err
 	}
+	zap.L().Sugar().Infof("Token blacklisted, token: %s", token)
 	return val == "blacklisted", nil
 }
 

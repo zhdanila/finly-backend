@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"finly-backend/internal/config"
 	"fmt"
 	"github.com/redis/go-redis/v9"
@@ -43,4 +45,49 @@ func NewRedisDB(ctx context.Context, cnf *config.Config) (*redis.Client, error) 
 	}
 
 	return nil, fmt.Errorf("unable to connect to Redis after 10 attempts: %w", err)
+}
+
+func GetFromCache[T any](ctx context.Context, redisClient *redis.Client, key string, dest *T) (bool, error) {
+	val, err := redisClient.Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return false, nil // cache miss
+		}
+		return false, err // redis error
+	}
+	if err := json.Unmarshal([]byte(val), dest); err != nil {
+		return false, err // unmarshalling error
+	}
+	return true, nil // cache hit
+}
+
+func SetToCache(ctx context.Context, redis *redis.Client, key string, value any, ttl time.Duration) error {
+	data, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	return redis.Set(ctx, key, data, ttl).Err()
+}
+
+func WithCache[T any](ctx context.Context, redisClient *redis.Client, cacheKey string, ttl time.Duration, fetch func() (T, error)) (T, error) {
+	var result T
+	cacheHit, err := GetFromCache(ctx, redisClient, cacheKey, &result)
+	if err != nil {
+		zap.L().Error("Cache error", zap.String("cacheKey", cacheKey), zap.Error(err))
+	} else if cacheHit {
+		zap.L().Info("Cache hit", zap.String("cacheKey", cacheKey))
+		return result, nil
+	}
+
+	data, err := fetch()
+	if err != nil {
+		return result, err
+	}
+
+	if err = SetToCache(ctx, redisClient, cacheKey, data, ttl); err != nil {
+		zap.L().Error("Failed to set cache", zap.String("cacheKey", cacheKey), zap.Error(err))
+	}
+
+	zap.L().Info("Cache miss, data fetched and cached", zap.String("cacheKey", cacheKey))
+	return data, nil
 }
