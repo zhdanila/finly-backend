@@ -128,7 +128,7 @@ func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*U
 				return errs.InvalidTransactionType
 			}
 
-			if err := s.updateBudgetHistory(ctx, tx, transaction.BudgetID, transaction.CreatedAt, difference, true); err != nil {
+			if err = s.updateBudgetHistory(ctx, tx, transaction.BudgetID, transaction.CreatedAt, difference, true); err != nil {
 				return err
 			}
 		}

@@ -58,6 +58,8 @@ func (c CategoryRepository) GetByID(ctx context.Context, categoryID, userID stri
 		}
 	} else if !errors.Is(err, redis.Nil) {
 		zap.L().Sugar().Errorf("Redis error: %v\n", err)
+	} else {
+		zap.L().Sugar().Infof("Cache miss for category, key: %s", cacheKey)
 	}
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1 AND user_id = $2", CategoryTable)
@@ -70,6 +72,8 @@ func (c CategoryRepository) GetByID(ctx context.Context, categoryID, userID stri
 		if err = c.redis.Set(ctx, cacheKey, serializedCategories, TTL_GetCategoryCache).Err(); err != nil {
 			zap.L().Sugar().Errorf("Failed to cache categories: %v", err)
 		}
+	} else {
+		zap.L().Sugar().Warnf("Failed to marshal category for caching, categoryID: %s, userID: %s, error: %v", categoryID, userID, err)
 	}
 
 	return &category, nil
@@ -86,6 +90,8 @@ func (c CategoryRepository) List(ctx context.Context, userID string) ([]*domain.
 		}
 	} else if !errors.Is(err, redis.Nil) {
 		zap.L().Sugar().Errorf("Redis error: %v\n", err)
+	} else {
+		zap.L().Sugar().Infof("Cache miss for categories, key: %s", cacheKey)
 	}
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE (user_id = $1 AND is_user_category = true) OR is_user_category = false", CategoryTable)
@@ -98,6 +104,8 @@ func (c CategoryRepository) List(ctx context.Context, userID string) ([]*domain.
 		if err = c.redis.Set(ctx, cacheKey, serializedCategories, TTL_ListCategoriesCache).Err(); err != nil {
 			zap.L().Sugar().Errorf("Failed to cache categories: %v", err)
 		}
+	} else {
+		zap.L().Sugar().Warnf("Failed to marshal categories for caching, userID: %s, error: %v", userID, err)
 	}
 
 	return categories, nil
@@ -128,6 +136,8 @@ func (c CategoryRepository) ListCustom(ctx context.Context, userID string) ([]*d
 		}
 	} else if !errors.Is(err, redis.Nil) {
 		zap.L().Sugar().Errorf("Redis error: %v\n", err)
+	} else {
+		zap.L().Sugar().Infof("Cache miss for custom categories, key: %s", cacheKey)
 	}
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = $1 AND is_user_category = true", CategoryTable)
@@ -140,6 +150,8 @@ func (c CategoryRepository) ListCustom(ctx context.Context, userID string) ([]*d
 		if err = c.redis.Set(ctx, cacheKey, serializedCategories, TTL_ListCategoriesCustomCache).Err(); err != nil {
 			zap.L().Sugar().Errorf("Failed to cache categories: %v", err)
 		}
+	} else {
+		zap.L().Sugar().Warnf("Failed to marshal categories for caching, userID: %s, error: %v", userID, err)
 	}
 
 	return categories, nil
