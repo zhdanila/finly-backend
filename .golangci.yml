@@ -135,7 +135,6 @@ linters:
     - govet
     - misspell
     - musttag
-    - perfsprint
     - prealloc
     - predeclared
     - usestdlibvars
