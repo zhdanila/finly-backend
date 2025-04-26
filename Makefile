@@ -15,3 +15,6 @@ swagger:
 
 dbuild:
 	docker build -t my-go-worker . && docker run --rm -p 8080:8080 my-go-worker
+
+lint:
+	golangci-lint run
