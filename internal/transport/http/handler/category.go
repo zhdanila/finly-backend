@@ -56,7 +56,7 @@ func (s *Category) Create(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, res)
+	return c.JSON(http.StatusCreated, res)
 }
 
 // @Summary Get category by ID

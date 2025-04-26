@@ -55,7 +55,7 @@ func (s *Transaction) Create(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, res)
+	return c.JSON(http.StatusCreated, res)
 }
 
 // @Summary List transactions

@@ -55,7 +55,7 @@ func (s *Auth) RegisterUser(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, res)
+	return c.JSON(http.StatusCreated, res)
 }
 
 // @Summary Login a user

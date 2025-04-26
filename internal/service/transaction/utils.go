@@ -5,7 +5,9 @@ import (
 	"finly-backend/internal/domain/enums/e_transaction_type"
 )
 
-func calculateDifference(transactionType string, amount float64, invert bool) (float64, error) {
+// invertDelta calculates the signed value of a transaction based on its type.
+// If invert is true, the sign of the delta is reversed.
+func invertDelta(transactionType string, amount float64, invert bool) (float64, error) {
 	switch transactionType {
 	case e_transaction_type.Deposit.String():
 		if invert {
@@ -22,6 +24,8 @@ func calculateDifference(transactionType string, amount float64, invert bool) (f
 	}
 }
 
+// calculateNewAmount returns the new balance after applying the transaction.
+// It takes into account the transaction type and current budget balance.
 func calculateNewAmount(budgetHistory *domain.BudgetHistory, amount float64, transactionType string) (float64, error) {
 	var newAmount float64
 	switch transactionType {
@@ -42,6 +46,8 @@ func calculateNewAmount(budgetHistory *domain.BudgetHistory, amount float64, tra
 	return newAmount, nil
 }
 
+// calculateDelta returns the balance delta for a transaction based on its type.
+// Deposit increases balance, Withdrawal decreases it.
 func calculateDelta(transactionType string, amount float64) (float64, error) {
 	switch transactionType {
 	case e_transaction_type.Deposit.String():
@@ -53,7 +59,9 @@ func calculateDelta(transactionType string, amount float64) (float64, error) {
 	}
 }
 
-func calculateDifferenceBetweenTransactions(oldType string, oldAmount float64, newType string, newAmount float64) (float64, error) {
+// calculateDeltaChange returns the net balance difference caused by changing a transaction.
+// Useful when updating a transaction from one type/amount to another.
+func calculateDeltaChange(oldType string, oldAmount float64, newType string, newAmount float64) (float64, error) {
 	oldDelta, err := calculateDelta(oldType, oldAmount)
 	if err != nil {
 		return 0, err

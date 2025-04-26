@@ -1,6 +1,9 @@
 package category
 
-import "time"
+import (
+	"finly-backend/internal/domain"
+	"time"
+)
 
 type Category struct {
 	ID             string    `json:"id"`
@@ -49,4 +52,18 @@ type ListCustomCategoriesRequest struct {
 
 type ListCustomCategoriesResponse struct {
 	Categories []Category `json:"categories"`
+}
+
+func convertCategories(categories []*domain.Category) []Category {
+	categoriesResponse := make([]Category, len(categories))
+	for i, category := range categories {
+		categoriesResponse[i] = Category{
+			ID:             category.ID,
+			UserID:         category.UserID.String,
+			Name:           category.Name,
+			IsUserCategory: category.IsUserCategory,
+			CreatedAt:      category.CreatedAt,
+		}
+	}
+	return categoriesResponse
 }
