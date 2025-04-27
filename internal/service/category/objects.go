@@ -33,6 +33,7 @@ type GetCategoryByIDResponse struct {
 
 type ListCategoriesRequest struct {
 	UserID string `header:"User-Id" validate:"required"`
+	Test   string `query:"test"`
 }
 
 type ListCategoriesResponse struct {

@@ -100,7 +100,7 @@ func (s *Category) List(c echo.Context) error {
 		obj category.ListCategoriesRequest
 	)
 
-	if err = bind.Validate(c, &obj, bind.FromHeaders(), bind.FromHeaders()); err != nil {
+	if err = bind.Validate(c, &obj, bind.FromHeaders()); err != nil {
 		zap.L().Error("error binding and validating request", zap.Error(err))
 		return err
 	}
