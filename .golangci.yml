@@ -7,15 +7,10 @@ run:
 
 issues:
   exclude-rules:
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - gosec
-        - dupl
-    - path: opt/homebrew/.*
+    - path: .*/opt/homebrew/.*
       linters:
         - all
-    - path: go/pkg/mod/.*
+    - path: .*/go/pkg/mod/.*
       linters:
         - all
     - path: vendor/.*
@@ -24,6 +19,12 @@ issues:
     - path: _gen\.go
       linters:
         - all
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - gosec
+        - dupl
+
 
 linters:
   disable-all: true

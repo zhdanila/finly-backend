@@ -55,7 +55,7 @@ func GetFromCache[T any](ctx context.Context, redisClient *redis.Client, key str
 		}
 		return false, err // redis error
 	}
-	if err := json.Unmarshal([]byte(val), dest); err != nil {
+	if err = json.Unmarshal([]byte(val), dest); err != nil {
 		return false, err // unmarshalling error
 	}
 	return true, nil // cache hit

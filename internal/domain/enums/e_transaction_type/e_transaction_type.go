@@ -12,8 +12,11 @@ func (r *Enum) IsValid() bool {
 	switch *r {
 	case Deposit, Withdrawal:
 		return true
+	case Initial:
+		return false
+	default:
+		return false
 	}
-	return false
 }
 
 func (r Enum) String() string {
