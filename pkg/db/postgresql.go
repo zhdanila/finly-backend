@@ -43,8 +43,8 @@ func NewPostgresDB(cnf *config.Config) (*sqlx.DB, error) {
 			}
 		}
 
-		zap.L().Error("Database not ready, retrying in 5 seconds...", zap.Error(err))
-		time.Sleep(5 * time.Second)
+		zap.L().Error("Database not ready, retrying in 1 seconds...", zap.Error(err))
+		time.Sleep(1 * time.Second)
 	}
 
 	return nil, fmt.Errorf("unable to connect to database after 10 attempts: %w", err)

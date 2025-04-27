@@ -40,8 +40,8 @@ func NewRedisDB(ctx context.Context, cnf *config.Config) (*redis.Client, error) 
 			return client, nil
 		}
 
-		zap.L().Error("Redis not ready, retrying in 5 seconds...", zap.Error(err))
-		time.Sleep(5 * time.Second)
+		zap.L().Error("Redis not ready, retrying in 1 seconds...", zap.Error(err))
+		time.Sleep(1 * time.Second)
 	}
 
 	return nil, fmt.Errorf("unable to connect to Redis after 10 attempts: %w", err)
