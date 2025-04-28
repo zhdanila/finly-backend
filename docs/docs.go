@@ -180,13 +180,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Budget"
+                    "BudgetObject"
                 ],
                 "summary": "Create a new budget",
                 "operationId": "create-budget",
                 "parameters": [
                     {
-                        "description": "Budget Details",
+                        "description": "BudgetObject Details",
                         "name": "budget",
                         "in": "body",
                         "required": true,
@@ -212,14 +212,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Budget"
+                    "BudgetObject"
                 ],
                 "summary": "Get budget by ID",
                 "operationId": "get-budget-by-id",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Budget ID",
+                        "description": "BudgetObject ID",
                         "name": "budget_id",
                         "in": "path",
                         "required": true
@@ -249,14 +249,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Budget"
+                    "BudgetObject"
                 ],
                 "summary": "Get current balance",
                 "operationId": "get-current-balance",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Budget ID",
+                        "description": "BudgetObject ID",
                         "name": "budget_id",
                         "in": "path",
                         "required": true
@@ -286,14 +286,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Budget"
+                    "BudgetObject"
                 ],
                 "summary": "Get budget history",
                 "operationId": "get-budget-history",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Budget ID",
+                        "description": "BudgetObject ID",
                         "name": "budget_id",
                         "in": "path",
                         "required": true
@@ -323,7 +323,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Category"
+                    "CategoryObject"
                 ],
                 "summary": "List all categories",
                 "operationId": "list-categories",
@@ -345,13 +345,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Category"
+                    "CategoryObject"
                 ],
                 "summary": "Create a new category",
                 "operationId": "create-category",
                 "parameters": [
                     {
-                        "description": "Category Details",
+                        "description": "CategoryObject Details",
                         "name": "category",
                         "in": "body",
                         "required": true,
@@ -377,14 +377,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Category"
+                    "CategoryObject"
                 ],
                 "summary": "Get category by ID",
                 "operationId": "get-category-by-id",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Category ID",
+                        "description": "CategoryObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -405,14 +405,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Category"
+                    "CategoryObject"
                 ],
                 "summary": "Delete a category",
                 "operationId": "delete-category",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Category ID",
+                        "description": "CategoryObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -770,7 +770,7 @@ const docTemplate = `{
                 }
             }
         },
-        "finly-backend_internal_service_category.Category": {
+        "finly-backend_internal_service_category.CategoryObject": {
             "type": "object",
             "required": [
                 "name"
@@ -860,7 +860,7 @@ const docTemplate = `{
                 "categories": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/finly-backend_internal_service_category.Category"
+                        "$ref": "#/definitions/finly-backend_internal_service_category.CategoryObject"
                     }
                 }
             }

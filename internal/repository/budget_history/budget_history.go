@@ -11,6 +11,17 @@ import (
 	"time"
 )
 
+type BudgetHistory interface {
+	Create(ctx context.Context, budgetID string, amount float64) (string, error)
+	CreateTX(ctx context.Context, tx *sqlx.Tx, budgetID, transactionID string, amount float64) (string, error)
+	CreateInitialTX(ctx context.Context, tx *sqlx.Tx, budgetID string, amount float64) (string, error)
+	GetLastByBudgetID(ctx context.Context, budgetID string) (*domain.BudgetHistory, error)
+	List(ctx context.Context, budgetID string) ([]*domain.BudgetHistory, error)
+	ListFromDate(ctx context.Context, budgetID string, fromDate time.Time, inclusive bool) ([]*domain.BudgetHistory, error)
+	UpdateBalanceTX(ctx context.Context, tx *sqlx.Tx, transactionID string, amount float64) error
+	GetCurrentBalance(ctx context.Context, budgetID string) (float64, error)
+}
+
 const (
 	BudgetHistoryTable = "budgets_history"
 
@@ -134,7 +145,7 @@ func (b BudgetHistoryRepository) Create(ctx context.Context, budgetID string, am
 		zap.L().Sugar().Warnf("Failed to invalidate cache after create, budgetID: %s, error: %v", budgetID, err)
 	}
 
-	zap.L().Sugar().Infof("Budget history entry created with ID: %s for budgetID: %s", id, budgetID)
+	zap.L().Sugar().Infof("BudgetObject history entry created with ID: %s for budgetID: %s", id, budgetID)
 	return id, nil
 }
 

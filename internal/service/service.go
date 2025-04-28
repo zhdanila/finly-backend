@@ -9,10 +9,10 @@ import (
 )
 
 type Service struct {
-	Auth        *auth.Service
-	Budget      *budget.Service
-	Category    *category.Service
-	Transaction *transaction.Service
+	Auth        auth.Auth
+	Budget      budget.Budget
+	Category    category.Category
+	Transaction transaction.Transaction
 }
 
 func NewService(repos *repository.Repository) *Service {

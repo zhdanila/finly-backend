@@ -4,15 +4,23 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"finly-backend/internal/repository"
+	"finly-backend/internal/repository/category"
 	"go.uber.org/zap"
 )
 
-type Service struct {
-	repo repository.Category
+type Category interface {
+	Create(ctx context.Context, req *CreateCategoryRequest) (*CreateCategoryResponse, error)
+	GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*GetCategoryByIDResponse, error)
+	List(ctx context.Context, req *ListCategoriesRequest) (*ListCategoriesResponse, error)
+	ListCustom(ctx context.Context, req *ListCustomCategoriesRequest) (*ListCustomCategoriesResponse, error)
+	Delete(ctx context.Context, req *DeleteCategoryRequest) (*DeleteCategoryResponse, error)
 }
 
-func NewService(repo repository.Category) *Service {
+type Service struct {
+	repo category.Category
+}
+
+func NewService(repo category.Category) *Service {
 	return &Service{
 		repo: repo,
 	}
@@ -43,7 +51,7 @@ func (s *Service) GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*Ge
 	}
 
 	return &GetCategoryByIDResponse{
-		&Category{
+		&CategoryObject{
 			ID:             category.ID,
 			UserID:         category.UserID.String,
 			Name:           category.Name,

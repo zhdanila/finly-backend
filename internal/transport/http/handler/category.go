@@ -36,7 +36,7 @@ func (s *Category) Register(server *server.Server) {
 // @Tags Category
 // @ID create-category
 // @Produce json
-// @Param category body category.CreateCategoryRequest true "Category Details"
+// @Param category body category.CreateCategoryRequest true "CategoryObject Details"
 // @Success 200 {object} category.CreateCategoryResponse
 // @Router /category [post]
 func (s *Category) Create(c echo.Context) error {
@@ -64,7 +64,7 @@ func (s *Category) Create(c echo.Context) error {
 // @Tags Category
 // @ID get-category-by-id
 // @Produce json
-// @Param id path string true "Category ID"
+// @Param id path string true "CategoryObject ID"
 // @Success 200 {object} category.GetCategoryByIDResponse
 // @Router /category/{id} [get]
 func (s *Category) GetByID(c echo.Context) error {
@@ -119,7 +119,7 @@ func (s *Category) List(c echo.Context) error {
 // @Tags Category
 // @ID delete-category
 // @Produce json
-// @Param id path string true "Category ID"
+// @Param id path string true "CategoryObject ID"
 // @Success 200 {object} category.DeleteCategoryResponse
 // @Router /category/{id} [delete]
 func (s *Category) Delete(c echo.Context) error {

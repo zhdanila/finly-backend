@@ -81,7 +81,7 @@ func TestCategoryRepository(t *testing.T) {
 
 		t.Run("Success", func(t *testing.T) {
 			userID := "123"
-			name := "Test Category"
+			name := "Test CategoryObject"
 			categoryID := "456"
 			cacheKey := fmt.Sprintf(cacheKeyCategoriesByUser, userID)
 
@@ -101,7 +101,7 @@ func TestCategoryRepository(t *testing.T) {
 
 		t.Run("DatabaseError", func(t *testing.T) {
 			userID := "123"
-			name := "Test Category"
+			name := "Test CategoryObject"
 
 			query := fmt.Sprintf("INSERT INTO %s \\(user_id, name\\) VALUES \\(\\$1, \\$2\\) RETURNING id", CategoryTable)
 			mock.ExpectQuery(query).
@@ -127,7 +127,7 @@ func TestCategoryRepository(t *testing.T) {
 			userID := sql.NullString{String: "123"}
 			categoryID := "456"
 			cacheKey := fmt.Sprintf(cacheKeyCategoryByIDAndUser, categoryID, userID.String)
-			category := &domain.Category{ID: categoryID, UserID: userID, Name: "Test Category"}
+			category := &domain.Category{ID: categoryID, UserID: userID, Name: "Test CategoryObject"}
 
 			data, err := json.Marshal(category)
 			assert.NoError(t, err)
@@ -150,7 +150,7 @@ func TestCategoryRepository(t *testing.T) {
 					String: userID,
 					Valid:  true,
 				},
-				Name: "Test Category",
+				Name: "Test CategoryObject",
 			}
 
 			query := fmt.Sprintf("SELECT \\* FROM %s WHERE id = \\$1 AND user_id = \\$2", CategoryTable)
@@ -193,7 +193,7 @@ func TestCategoryRepository(t *testing.T) {
 			userID := sql.NullString{String: "12345"}
 			cacheKey := fmt.Sprintf(cacheKeyCategoriesByUser, userID.String)
 			categories := []*domain.Category{
-				{ID: "456", UserID: userID, Name: "Test Category"},
+				{ID: "456", UserID: userID, Name: "Test CategoryObject"},
 			}
 
 			data, err := json.Marshal(categories)
@@ -217,7 +217,7 @@ func TestCategoryRepository(t *testing.T) {
 						String: userID,
 						Valid:  true,
 					},
-					Name:           "Test Category",
+					Name:           "Test CategoryObject",
 					IsUserCategory: true,
 				},
 			}
@@ -299,7 +299,7 @@ func TestCategoryRepository(t *testing.T) {
 			userID := sql.NullString{String: "12345"}
 			cacheKey := fmt.Sprintf(cacheKeyCustomCategoriesByUser, userID.String)
 			categories := []*domain.Category{
-				{ID: "456", UserID: userID, Name: "Test Category", IsUserCategory: true},
+				{ID: "456", UserID: userID, Name: "Test CategoryObject", IsUserCategory: true},
 			}
 
 			data, err := json.Marshal(categories)
@@ -323,7 +323,7 @@ func TestCategoryRepository(t *testing.T) {
 						String: userID,
 						Valid:  true,
 					},
-					Name:           "Test Category",
+					Name:           "Test CategoryObject",
 					IsUserCategory: true,
 				},
 			}

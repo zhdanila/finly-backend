@@ -11,6 +11,15 @@ import (
 	"time"
 )
 
+type Transaction interface {
+	CreateTX(ctx context.Context, tx *sqlx.Tx, userID, budgetID, categoryID, transactionType, note string, amount float64) (string, error)
+	GetDB() *sqlx.DB
+	List(ctx context.Context, userID string) ([]*domain.Transaction, error)
+	UpdateTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string, categoryID, transactionType, note string, amount float64) error
+	DeleteTX(ctx context.Context, tx *sqlx.Tx, transactionID, userID string) error
+	GetByID(ctx context.Context, transactionID, userID string) (*domain.Transaction, error)
+}
+
 const (
 	TransactionTable = "transactions"
 

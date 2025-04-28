@@ -35,7 +35,7 @@ func (s *Budget) Register(server *server.Server) {
 // @Tags Budget
 // @ID create-budget
 // @Produce json
-// @Param budget body budget.CreateBudgetRequest true "Budget Details"
+// @Param budget body budget.CreateBudgetRequest true "BudgetObject Details"
 // @Success 200 {object} budget.CreateBudgetResponse
 // @Router /budget [post]
 func (s *Budget) Create(c echo.Context) error {
@@ -63,7 +63,7 @@ func (s *Budget) Create(c echo.Context) error {
 // @Tags Budget
 // @ID get-budget-by-id
 // @Produce json
-// @Param budget_id path string true "Budget ID"
+// @Param budget_id path string true "BudgetObject ID"
 // @Param user_id header string true "User ID"
 // @Success 200 {object} budget.GetBudgetByIDResponse
 // @Router /budget/{budget_id} [get]
@@ -92,7 +92,7 @@ func (s *Budget) GetByUserID(c echo.Context) error {
 // @Tags Budget
 // @ID get-budget-history
 // @Produce json
-// @Param budget_id path string true "Budget ID"
+// @Param budget_id path string true "BudgetObject ID"
 // @Param user_id header string true "User ID"
 // @Success 200 {object} budget.GetBudgetHistoryResponse
 // @Router /budget/{budget_id}/history [get]
@@ -121,7 +121,7 @@ func (s *Budget) GetBudgetHistory(c echo.Context) error {
 // @Tags Budget
 // @ID get-current-balance
 // @Produce json
-// @Param budget_id path string true "Budget ID"
+// @Param budget_id path string true "BudgetObject ID"
 // @Param user_id header string true "User ID"
 // @Success 200 {object} budget.GetCurrentBalanceResponse
 // @Router /budget/{budget_id}/balance [get]

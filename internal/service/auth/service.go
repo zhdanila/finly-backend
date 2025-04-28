@@ -4,18 +4,27 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"finly-backend/internal/repository"
+	"finly-backend/internal/repository/auth"
+	"finly-backend/internal/repository/budget"
 	"finly-backend/pkg/security"
 	"go.uber.org/zap"
 	"strings"
 )
 
-type Service struct {
-	authRepo   repository.Auth
-	budgetRepo repository.Budget
+type Auth interface {
+	Register(ctx context.Context, req *RegisterRequest) (*RegisterResponse, error)
+	Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error)
+	Logout(ctx context.Context, req *LogoutRequest) (*LogoutResponse, error)
+	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*RefreshTokenResponse, error)
+	Me(ctx context.Context, req *MeRequest) (*MeResponse, error)
 }
 
-func NewService(authRepo repository.Auth, budgetRepo repository.Budget) *Service {
+type Service struct {
+	authRepo   auth.Auth
+	budgetRepo budget.Budget
+}
+
+func NewService(authRepo auth.Auth, budgetRepo budget.Budget) *Service {
 	return &Service{
 		authRepo:   authRepo,
 		budgetRepo: budgetRepo,

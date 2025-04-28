@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Category struct {
+type CategoryObject struct {
 	ID             string    `json:"id"`
 	UserID         string    `json:"user_id"`
 	Name           string    `json:"name" validate:"required"`
@@ -15,7 +15,7 @@ type Category struct {
 
 type CreateCategoryRequest struct {
 	UserID string `header:"User-Id" validate:"required"`
-	Category
+	CategoryObject
 }
 
 type CreateCategoryResponse struct {
@@ -28,7 +28,7 @@ type GetCategoryByIDRequest struct {
 }
 
 type GetCategoryByIDResponse struct {
-	*Category
+	*CategoryObject
 }
 
 type ListCategoriesRequest struct {
@@ -37,7 +37,7 @@ type ListCategoriesRequest struct {
 }
 
 type ListCategoriesResponse struct {
-	Categories []Category `json:"categories"`
+	Categories []CategoryObject `json:"categories"`
 }
 
 type DeleteCategoryRequest struct {
@@ -52,13 +52,13 @@ type ListCustomCategoriesRequest struct {
 }
 
 type ListCustomCategoriesResponse struct {
-	Categories []Category `json:"categories"`
+	Categories []CategoryObject `json:"categories"`
 }
 
-func convertCategories(categories []*domain.Category) []Category {
-	categoriesResponse := make([]Category, len(categories))
+func convertCategories(categories []*domain.Category) []CategoryObject {
+	categoriesResponse := make([]CategoryObject, len(categories))
 	for i, category := range categories {
-		categoriesResponse[i] = Category{
+		categoriesResponse[i] = CategoryObject{
 			ID:             category.ID,
 			UserID:         category.UserID.String,
 			Name:           category.Name,

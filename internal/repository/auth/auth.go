@@ -12,6 +12,16 @@ import (
 	"time"
 )
 
+type Auth interface {
+	Register(ctx context.Context, email, passwordHash, firstName, lastName string) (string, error)
+	GetUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetUserByID(ctx context.Context, id string) (*domain.User, error)
+
+	AddTokenToBlacklist(ctx context.Context, token string, ttlSeconds float64) error
+	IsTokenBlacklisted(ctx context.Context, token string) (bool, error)
+	RemoveToken(ctx context.Context, token string) error
+}
+
 const (
 	UsersTable = "users"
 

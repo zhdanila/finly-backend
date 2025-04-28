@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Transaction struct {
+type TransactionObject struct {
 	ID         string                  `json:"id"`
 	UserID     string                  `json:"user_id"`
 	CategoryID string                  `json:"category_id"`
@@ -34,7 +34,7 @@ type ListTransactionRequest struct {
 }
 
 type ListTransactionResponse struct {
-	Transactions []Transaction `json:"transactions"`
+	Transactions []TransactionObject `json:"transactions"`
 }
 
 type UpdateTransactionRequest struct {

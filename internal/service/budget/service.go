@@ -4,18 +4,26 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"finly-backend/internal/repository"
+	"finly-backend/internal/repository/budget"
+	"finly-backend/internal/repository/budget_history"
 	"finly-backend/pkg/db"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
-type Service struct {
-	budgetRepo        repository.Budget
-	budgetHistoryRepo repository.BudgetHistory
+type Budget interface {
+	Create(ctx context.Context, req *CreateBudgetRequest) (*CreateBudgetResponse, error)
+	GetByUserID(ctx context.Context, req *GetBudgetByIDRequest) (*GetBudgetByIDResponse, error)
+	GetBudgetHistory(ctx context.Context, req *GetBudgetHistoryRequest) (*GetBudgetHistoryResponse, error)
+	GetCurrentBalance(ctx context.Context, req *GetCurrentBalanceRequest) (*GetCurrentBalanceResponse, error)
 }
 
-func NewService(budgetRepo repository.Budget, budgetHistoryRepo repository.BudgetHistory) *Service {
+type Service struct {
+	budgetRepo        budget.Budget
+	budgetHistoryRepo budget_history.BudgetHistory
+}
+
+func NewService(budgetRepo budget.Budget, budgetHistoryRepo budget_history.BudgetHistory) *Service {
 	return &Service{
 		budgetRepo:        budgetRepo,
 		budgetHistoryRepo: budgetHistoryRepo,
@@ -64,7 +72,7 @@ func (s *Service) GetByUserID(ctx context.Context, req *GetBudgetByIDRequest) (*
 	}
 
 	return &GetBudgetByIDResponse{
-		&Budget{
+		&BudgetObject{
 			ID:        budget.ID,
 			UserID:    budget.UserID,
 			Currency:  budget.Currency,

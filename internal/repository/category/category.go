@@ -11,6 +11,14 @@ import (
 	"time"
 )
 
+type Category interface {
+	Create(ctx context.Context, userID, name string) (string, error)
+	GetByID(ctx context.Context, categoryID, userID string) (*domain.Category, error)
+	List(ctx context.Context, userID string) ([]*domain.Category, error)
+	ListCustom(ctx context.Context, userID string) ([]*domain.Category, error)
+	Delete(ctx context.Context, categoryID, userID string) error
+}
+
 const (
 	CategoryTable = "categories"
 
@@ -52,7 +60,7 @@ func (c *CategoryRepository) InvalidateCache(ctx context.Context, userID, catego
 		return err
 	}
 
-	zap.L().Sugar().Infof("Category cache invalidated for userID: %s, categoryID: %s", userID, categoryID)
+	zap.L().Sugar().Infof("CategoryObject cache invalidated for userID: %s, categoryID: %s", userID, categoryID)
 	return nil
 }
 
@@ -69,7 +77,7 @@ func (c *CategoryRepository) Create(ctx context.Context, userID, name string) (s
 		zap.L().Sugar().Warnf("Failed to invalidate cache after create for userID: %s, categoryID: %s, error: %v", userID, id, err)
 	}
 
-	zap.L().Sugar().Infof("Category created successfully for userID: %s, categoryID: %s", userID, id)
+	zap.L().Sugar().Infof("CategoryObject created successfully for userID: %s, categoryID: %s", userID, id)
 	return id, nil
 }
 

@@ -11,6 +11,12 @@ import (
 	"time"
 )
 
+type Budget interface {
+	GetDB() *sqlx.DB
+	CreateTX(ctx context.Context, tx *sqlx.Tx, userID, currency string) (string, error)
+	GetByUserID(ctx context.Context, userID string) (*domain.Budget, error)
+}
+
 const (
 	BudgetTable = "budgets"
 

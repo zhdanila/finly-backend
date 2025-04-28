@@ -5,19 +5,27 @@ import (
 	"database/sql"
 	"errors"
 	"finly-backend/internal/domain/enums/e_transaction_type"
-	"finly-backend/internal/repository"
+	"finly-backend/internal/repository/budget_history"
+	"finly-backend/internal/repository/transaction"
 	"finly-backend/pkg/db"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"time"
 )
 
-type Service struct {
-	transactionRepo   repository.Transaction
-	budgetHistoryRepo repository.BudgetHistory
+type Transaction interface {
+	Create(ctx context.Context, req *CreateTransactionRequest) (*CreateTransactionResponse, error)
+	List(ctx context.Context, req *ListTransactionRequest) (*ListTransactionResponse, error)
+	Update(ctx context.Context, req *UpdateTransactionRequest) (*UpdateTransactionResponse, error)
+	Delete(ctx context.Context, req *DeleteTransactionRequest) (*DeleteTransactionResponse, error)
 }
 
-func NewService(transactionRepo repository.Transaction, budgetHistoryRepo repository.BudgetHistory) *Service {
+type Service struct {
+	transactionRepo   transaction.Transaction
+	budgetHistoryRepo budget_history.BudgetHistory
+}
+
+func NewService(transactionRepo transaction.Transaction, budgetHistoryRepo budget_history.BudgetHistory) *Service {
 	return &Service{
 		transactionRepo:   transactionRepo,
 		budgetHistoryRepo: budgetHistoryRepo,
@@ -61,7 +69,7 @@ func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*C
 
 		return nil
 	}); err != nil {
-		zap.L().Sugar().Errorf("Transaction creation failed for userID=%s, budgetID=%s: %v", req.UserID, req.BudgetID, err)
+		zap.L().Sugar().Errorf("TransactionObject creation failed for userID=%s, budgetID=%s: %v", req.UserID, req.BudgetID, err)
 		return nil, err
 	}
 
@@ -75,9 +83,9 @@ func (s *Service) List(ctx context.Context, req *ListTransactionRequest) (*ListT
 		return nil, errs.DatabaseError
 	}
 
-	transactionList := make([]Transaction, 0, len(transactions))
+	transactionList := make([]TransactionObject, 0, len(transactions))
 	for _, t := range transactions {
-		transactionList = append(transactionList, Transaction{
+		transactionList = append(transactionList, TransactionObject{
 			ID:         t.ID,
 			UserID:     t.UserID,
 			BudgetID:   t.BudgetID,
@@ -120,7 +128,7 @@ func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*U
 
 		return nil
 	}); err != nil {
-		zap.L().Sugar().Errorf("Transaction update failed for transactionID=%s, userID=%s: %v", req.TransactionID, req.UserID, err)
+		zap.L().Sugar().Errorf("TransactionObject update failed for transactionID=%s, userID=%s: %v", req.TransactionID, req.UserID, err)
 		return nil, err
 	}
 
@@ -154,7 +162,7 @@ func (s *Service) Delete(ctx context.Context, req *DeleteTransactionRequest) (*D
 
 		return nil
 	}); err != nil {
-		zap.L().Sugar().Errorf("Transaction deletion failed for transactionID=%s, userID=%s: %v", req.TransactionID, req.UserID, err)
+		zap.L().Sugar().Errorf("TransactionObject deletion failed for transactionID=%s, userID=%s: %v", req.TransactionID, req.UserID, err)
 		return nil, err
 	}
 

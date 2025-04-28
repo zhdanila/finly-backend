@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Budget struct {
+type BudgetObject struct {
 	ID        string    `json:"id"`
 	UserID    string    `json:"user_id"`
 	Currency  string    `json:"currency"`
@@ -27,7 +27,7 @@ type GetBudgetByIDRequest struct {
 }
 
 type GetBudgetByIDResponse struct {
-	*Budget
+	*BudgetObject
 }
 
 type GetBudgetHistoryRequest struct {

@@ -35,7 +35,7 @@ func (s *Transaction) Register(server *server.Server) {
 // @Tags Transaction
 // @ID create-transaction
 // @Produce json
-// @Param transaction body transaction.CreateTransactionRequest true "Transaction Details"
+// @Param transaction body transaction.CreateTransactionRequest true "TransactionObject Details"
 // @Success 200 {object} transaction.CreateTransactionResponse
 // @Router /transaction [post]
 func (s *Transaction) Create(c echo.Context) error {
@@ -91,8 +91,8 @@ func (s *Transaction) List(c echo.Context) error {
 // @Tags Transaction
 // @ID update-transaction
 // @Produce json
-// @Param id path string true "Transaction ID"
-// @Param transaction body transaction.UpdateTransactionRequest true "Transaction Details"
+// @Param id path string true "TransactionObject ID"
+// @Param transaction body transaction.UpdateTransactionRequest true "TransactionObject Details"
 // @Success 200 {object} transaction.UpdateTransactionResponse
 // @Router /transaction/{id} [put]
 func (s *Transaction) Update(c echo.Context) error {
@@ -120,7 +120,7 @@ func (s *Transaction) Update(c echo.Context) error {
 // @Tags Transaction
 // @ID delete-transaction
 // @Produce json
-// @Param id path string true "Transaction ID"
+// @Param id path string true "TransactionObject ID"
 // @Success 200 {object} transaction.DeleteTransactionResponse
 // @Router /transaction/{id} [delete]
 func (s *Transaction) Delete(c echo.Context) error {
