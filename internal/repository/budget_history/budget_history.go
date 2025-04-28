@@ -1,4 +1,4 @@
-package repository
+package budget_history
 
 import (
 	"context"

@@ -3,6 +3,11 @@ package repository
 import (
 	"context"
 	"finly-backend/internal/domain"
+	"finly-backend/internal/repository/auth"
+	"finly-backend/internal/repository/budget"
+	"finly-backend/internal/repository/budget_history"
+	"finly-backend/internal/repository/category"
+	"finly-backend/internal/repository/transaction"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 	"time"
@@ -18,11 +23,11 @@ type Repository struct {
 
 func NewRepository(postgres *sqlx.DB, redis *redis.Client) *Repository {
 	return &Repository{
-		Auth:          NewAuthRepository(postgres, redis),
-		Budget:        NewBudgetRepository(postgres, redis),
-		Category:      NewCategoryRepository(postgres, redis),
-		Transaction:   NewTransactionRepository(postgres, redis),
-		BudgetHistory: NewBudgetHistoryRepository(postgres, redis),
+		Auth:          auth.NewAuthRepository(postgres, redis),
+		Budget:        budget.NewBudgetRepository(postgres, redis),
+		Category:      category.NewCategoryRepository(postgres, redis),
+		Transaction:   transaction.NewTransactionRepository(postgres, redis),
+		BudgetHistory: budget_history.NewBudgetHistoryRepository(postgres, redis),
 	}
 }
 
