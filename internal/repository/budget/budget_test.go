@@ -17,7 +17,7 @@ func TestBudgetRepository(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("GetDB", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -32,7 +32,7 @@ func TestBudgetRepository(t *testing.T) {
 	})
 
 	t.Run("cacheKeys", func(t *testing.T) {
-		sqlxDB, _, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, _, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -48,7 +48,7 @@ func TestBudgetRepository(t *testing.T) {
 	})
 
 	t.Run("InvalidateCache", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -81,7 +81,7 @@ func TestBudgetRepository(t *testing.T) {
 	})
 
 	t.Run("CreateTX", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -161,7 +161,7 @@ func TestBudgetRepository(t *testing.T) {
 	})
 
 	t.Run("GetByUserID", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 

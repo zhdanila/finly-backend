@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func SetupTest(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock, *redis.Client, *miniredis.Miniredis, *zap.Logger) {
+func SetupRepositoryTest(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock, *redis.Client, *miniredis.Miniredis, *zap.Logger) {
 	t.Helper()
 
 	db, mock, err := sqlmock.New()

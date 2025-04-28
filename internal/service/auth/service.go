@@ -65,7 +65,7 @@ func (s *Service) Register(ctx context.Context, req *RegisterRequest) (*Register
 func (s *Service) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	user, err := s.authRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			zap.L().Sugar().Warnf("Invalid credentials for email: %s", req.Email)
 			return nil, errs.InvalidCredentials
 		}
@@ -157,7 +157,7 @@ func (s *Service) Me(ctx context.Context, req *MeRequest) (*MeResponse, error) {
 
 	userInfo, err := s.authRepo.GetUserByID(ctx, user.UserID)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			zap.L().Sugar().Warnf("User not found for userID: %s", user.UserID)
 			return nil, errs.UserNotFound
 		}

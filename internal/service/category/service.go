@@ -42,7 +42,7 @@ func (s *Service) Create(ctx context.Context, req *CreateCategoryRequest) (*Crea
 func (s *Service) GetByID(ctx context.Context, req *GetCategoryByIDRequest) (*GetCategoryByIDResponse, error) {
 	category, err := s.repo.GetByID(ctx, req.ID, req.UserID)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			zap.L().Sugar().Infof("GetByID: no category found for categoryID=%s, userID=%s", req.ID, req.UserID)
 			return &GetCategoryByIDResponse{}, nil
 		}

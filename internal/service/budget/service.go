@@ -63,7 +63,7 @@ func (s *Service) Create(ctx context.Context, req *CreateBudgetRequest) (*Create
 func (s *Service) GetByUserID(ctx context.Context, req *GetBudgetByIDRequest) (*GetBudgetByIDResponse, error) {
 	budget, err := s.budgetRepo.GetByUserID(ctx, req.UserID)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			zap.L().Sugar().Infof("GetByUserID: no budget found for userID=%s", req.UserID)
 			return &GetBudgetByIDResponse{}, nil
 		}
@@ -85,7 +85,7 @@ func (s *Service) GetByUserID(ctx context.Context, req *GetBudgetByIDRequest) (*
 func (s *Service) GetBudgetHistory(ctx context.Context, req *GetBudgetHistoryRequest) (*GetBudgetHistoryResponse, error) {
 	budgets, err := s.budgetHistoryRepo.List(ctx, req.BudgetID)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			zap.L().Sugar().Infof("GetBudgetHistory: no history for budgetID=%s", req.BudgetID)
 			return &GetBudgetHistoryResponse{}, nil
 		}
@@ -111,7 +111,7 @@ func (s *Service) GetBudgetHistory(ctx context.Context, req *GetBudgetHistoryReq
 func (s *Service) GetCurrentBalance(ctx context.Context, req *GetCurrentBalanceRequest) (*GetCurrentBalanceResponse, error) {
 	balance, err := s.budgetHistoryRepo.GetCurrentBalance(ctx, req.BudgetID)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			zap.L().Sugar().Infof("GetCurrentBalance: no balance for budgetID=%s", req.BudgetID)
 			return &GetCurrentBalanceResponse{}, nil
 		}

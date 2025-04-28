@@ -25,7 +25,7 @@ type LoginResponse struct {
 }
 
 type LogoutRequest struct {
-	AuthToken string `header:"Authorization"`
+	AuthToken string `header:"Authorization"  validate:"required"`
 }
 
 type LogoutResponse struct {
@@ -33,7 +33,7 @@ type LogoutResponse struct {
 }
 
 type RefreshTokenRequest struct {
-	AuthToken string `header:"Authorization"`
+	AuthToken string `header:"Authorization" validate:"required"`
 }
 
 type RefreshTokenResponse struct {
@@ -41,7 +41,7 @@ type RefreshTokenResponse struct {
 }
 
 type MeRequest struct {
-	AuthToken string `header:"Authorization"`
+	AuthToken string `header:"Authorization" validate:"required"`
 }
 
 type MeResponse struct {

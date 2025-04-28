@@ -17,7 +17,7 @@ func TestTransactionRepository(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("cacheKeys", func(t *testing.T) {
-		sqlxDB, _, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, _, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -37,7 +37,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("InvalidateCache", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -70,7 +70,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("GetDB", func(t *testing.T) {
-		sqlxDB, _, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, _, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -84,7 +84,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("CreateTX", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -148,7 +148,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("List", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -222,7 +222,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("UpdateTX", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -283,7 +283,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("DeleteTX", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -336,7 +336,7 @@ func TestTransactionRepository(t *testing.T) {
 	})
 
 	t.Run("GetByID", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 

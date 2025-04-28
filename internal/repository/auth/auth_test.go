@@ -17,7 +17,7 @@ func TestAuthRepository(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("Register", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -61,7 +61,7 @@ func TestAuthRepository(t *testing.T) {
 	})
 
 	t.Run("GetUserByEmail", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -114,7 +114,7 @@ func TestAuthRepository(t *testing.T) {
 	})
 
 	t.Run("InvalidateCache", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -148,7 +148,7 @@ func TestAuthRepository(t *testing.T) {
 	})
 
 	t.Run("AddTokenToBlacklist", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -170,7 +170,7 @@ func TestAuthRepository(t *testing.T) {
 	})
 
 	t.Run("IsTokenBlacklisted", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
@@ -198,7 +198,7 @@ func TestAuthRepository(t *testing.T) {
 	})
 
 	t.Run("RemoveToken", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupTest(t)
+		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
