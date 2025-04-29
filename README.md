@@ -1,29 +1,16 @@
+---
+
 # **Finly Backend**
 
-**Finly** is a backend application for managing personal finances. It enables users to track expenses and income, manage budgets, and create custom categories for better financial organization. The backend is built with **Go** and offers a **RESTful API** for seamless integration with frontend applications.
-
----
-
-## 📚 Table of Contents
-
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [API Documentation](#api-documentation)
-- [Key Endpoints](#key-endpoints)
-    - [Authentication](#authentication)
-    - [Budget](#budget)
-    - [Category](#category)
-    - [Transaction](#transaction)
-
----
+**Finly** is a backend application designed to help users manage their personal finances. It enables efficient tracking of expenses and income, budget management, and custom categories for enhanced financial organization. Built using **Go**, the backend provides a **RESTful API** for seamless frontend integration.
 
 ## 🚀 Features
 
 - **User Authentication**: Register, login, logout, refresh token, and fetch user profile.
-- **Budget Management**: Create budgets, view details, check balances, and transaction history.
+- **Budget Management**: Create budgets, view budget details, check balances, and view transaction history.
 - **Transaction Management**: Add, update, delete, and list transactions (deposits/withdrawals).
 - **Category Management**: Create, retrieve, and delete custom transaction categories.
-- **Secure API**: JWT-based authentication for protecting endpoints.
+- **Secure API**: JWT-based authentication for securing endpoints.
 - **Persistent Data Storage**: PostgreSQL for storage and Redis for caching.
 
 ---
@@ -47,39 +34,47 @@ Access the Swagger UI after starting the server at:
 
 ---
 
-## 📌 Key Endpoints
+## 📝 Setup
 
-### 🔐 Authentication
+To run the application locally, follow these steps:
 
-- `POST /auth/register` – Register a new user
-- `POST /auth/login` – Authenticate a user and receive a JWT token
-- `POST /auth/refresh` – Refresh the JWT token
-- `POST /auth/logout` – Invalidate the user's token
-- `POST /auth/me` – Retrieve the authenticated user's profile
+1. **Create a `.env` file**:  
+   In the root of the project, create a `.env` file with the following content:
 
----
+    ```env
+    HTTP_PORT=8080
 
-### 💰 Budget
+    DB_USERNAME=your_db_username
+    DB_PASSWORD=your_db_password
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_NAME=finly
+    DB_SSLMODE=disable
 
-- `POST /budget` – Create a new budget
-- `GET /budget/{budget_id}` – Retrieve budget details by ID
-- `GET /budget/{budget_id}/balance` – Get the current balance
-- `GET /budget/{budget_id}/history` – View budget transaction history
+    REDIS_HOST=localhost
+    REDIS_PORT=6379
+    REDIS_PASSWORD=your_redis_password
+    REDIS_DB=0
+    ```
 
----
+   - **ENV**: Set this to `dev` for local development. In production, use `prod`.
+   - **HTTP_PORT**: Define the port for the HTTP server to listen on (default is `8080`).
+   - **Database**: Configure your PostgreSQL database credentials (`DB_USERNAME`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_SSLMODE`).
+   - **Redis**: Set up Redis credentials (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB`).
 
-### 🗂️ Category
+2. **Install Dependencies**:  
+   Make sure you have PostgreSQL and Redis installed or use Docker to run them in containers.
 
-- `POST /category` – Create a new custom category
-- `GET /category` – List all categories for the user
-- `GET /category/{id}` – Retrieve a category by ID
-- `DELETE /category/{id}` – Delete a category
+3. **Run Database Migrations**:  
+   Before starting the application, apply the database migrations to set up the necessary database schema:
 
----
+    ```bash
+    make migrate-up
+    ```
 
-### 💸 Transaction
+4. **Launch the Application**:  
+   After setting up the `.env` file and running the migrations, you can start the application and the necessary services (PostgreSQL and Redis) in containers by running the following command:
 
-- `POST /transaction` – Create a new transaction (deposit or withdrawal)
-- `GET /transaction` – List all transactions
-- `PUT /transaction/{id}` – Update a transaction
-- `DELETE /transaction/{id}` – Delete a transaction
+    ```bash
+    make up
+    ```

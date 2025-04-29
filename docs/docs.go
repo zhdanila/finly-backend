@@ -180,13 +180,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "BudgetObject"
+                    "Budget"
                 ],
                 "summary": "Create a new budget",
                 "operationId": "create-budget",
                 "parameters": [
                     {
-                        "description": "BudgetObject Details",
+                        "description": "Budget Details",
                         "name": "budget",
                         "in": "body",
                         "required": true,
@@ -212,7 +212,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "BudgetObject"
+                    "Budget"
                 ],
                 "summary": "Get budget by ID",
                 "operationId": "get-budget-by-id",
@@ -249,7 +249,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "BudgetObject"
+                    "Budget"
                 ],
                 "summary": "Get current balance",
                 "operationId": "get-current-balance",
@@ -286,7 +286,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "BudgetObject"
+                    "Budget"
                 ],
                 "summary": "Get budget history",
                 "operationId": "get-budget-history",
@@ -323,7 +323,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CategoryObject"
+                    "Category"
                 ],
                 "summary": "List all categories",
                 "operationId": "list-categories",
@@ -345,7 +345,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CategoryObject"
+                    "Category"
                 ],
                 "summary": "Create a new category",
                 "operationId": "create-category",
@@ -377,7 +377,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CategoryObject"
+                    "Category"
                 ],
                 "summary": "Get category by ID",
                 "operationId": "get-category-by-id",
@@ -405,7 +405,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CategoryObject"
+                    "Category"
                 ],
                 "summary": "Delete a category",
                 "operationId": "delete-category",
@@ -469,7 +469,7 @@ const docTemplate = `{
                 "operationId": "create-transaction",
                 "parameters": [
                     {
-                        "description": "Transaction Details",
+                        "description": "TransactionObject Details",
                         "name": "transaction",
                         "in": "body",
                         "required": true,
@@ -502,13 +502,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Transaction ID",
+                        "description": "TransactionObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Transaction Details",
+                        "description": "TransactionObject Details",
                         "name": "transaction",
                         "in": "body",
                         "required": true,
@@ -539,7 +539,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Transaction ID",
+                        "description": "TransactionObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -597,6 +597,9 @@ const docTemplate = `{
         },
         "finly-backend_internal_service_auth.LogoutRequest": {
             "type": "object",
+            "required": [
+                "authToken"
+            ],
             "properties": {
                 "authToken": {
                     "type": "string"
@@ -636,6 +639,9 @@ const docTemplate = `{
         },
         "finly-backend_internal_service_auth.RefreshTokenRequest": {
             "type": "object",
+            "required": [
+                "authToken"
+            ],
             "properties": {
                 "authToken": {
                     "type": "string"
@@ -920,12 +926,12 @@ const docTemplate = `{
                 "transactions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/finly-backend_internal_service_transaction.Transaction"
+                        "$ref": "#/definitions/finly-backend_internal_service_transaction.TransactionObject"
                     }
                 }
             }
         },
-        "finly-backend_internal_service_transaction.Transaction": {
+        "finly-backend_internal_service_transaction.TransactionObject": {
             "type": "object",
             "properties": {
                 "amount": {

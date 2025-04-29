@@ -30,6 +30,8 @@ definitions:
     properties:
       authToken:
         type: string
+    required:
+    - authToken
     type: object
   finly-backend_internal_service_auth.LogoutResponse:
     properties:
@@ -57,6 +59,8 @@ definitions:
     properties:
       authToken:
         type: string
+    required:
+    - authToken
     type: object
   finly-backend_internal_service_auth.RefreshTokenResponse:
     properties:
@@ -144,7 +148,7 @@ definitions:
       balance:
         type: number
     type: object
-  finly-backend_internal_service_category.Category:
+  finly-backend_internal_service_category.CategoryObject:
     properties:
       created_at:
         type: string
@@ -203,7 +207,7 @@ definitions:
     properties:
       categories:
         items:
-          $ref: '#/definitions/finly-backend_internal_service_category.Category'
+          $ref: '#/definitions/finly-backend_internal_service_category.CategoryObject'
         type: array
     type: object
   finly-backend_internal_service_transaction.CreateTransactionRequest:
@@ -242,10 +246,10 @@ definitions:
     properties:
       transactions:
         items:
-          $ref: '#/definitions/finly-backend_internal_service_transaction.Transaction'
+          $ref: '#/definitions/finly-backend_internal_service_transaction.TransactionObject'
         type: array
     type: object
-  finly-backend_internal_service_transaction.Transaction:
+  finly-backend_internal_service_transaction.TransactionObject:
     properties:
       amount:
         type: number
@@ -419,7 +423,7 @@ paths:
       description: Retrieves a budget by its ID for the specified user
       operationId: get-budget-by-id
       parameters:
-      - description: Budget ID
+      - description: BudgetObject ID
         in: path
         name: budget_id
         required: true
@@ -444,7 +448,7 @@ paths:
       description: Retrieves the current balance of a budget for the specified user
       operationId: get-current-balance
       parameters:
-      - description: Budget ID
+      - description: BudgetObject ID
         in: path
         name: budget_id
         required: true
@@ -469,7 +473,7 @@ paths:
       description: Retrieves the history of a budget for the specified user
       operationId: get-budget-history
       parameters:
-      - description: Budget ID
+      - description: BudgetObject ID
         in: path
         name: budget_id
         required: true
@@ -509,7 +513,7 @@ paths:
       description: Creates a new category for the user with the provided details
       operationId: create-category
       parameters:
-      - description: Category Details
+      - description: CategoryObject Details
         in: body
         name: category
         required: true
@@ -530,7 +534,7 @@ paths:
       description: Deletes the category with the given ID
       operationId: delete-category
       parameters:
-      - description: Category ID
+      - description: CategoryObject ID
         in: path
         name: id
         required: true
@@ -549,7 +553,7 @@ paths:
       description: Retrieves the category details for the given ID
       operationId: get-category-by-id
       parameters:
-      - description: Category ID
+      - description: CategoryObject ID
         in: path
         name: id
         required: true
@@ -588,7 +592,7 @@ paths:
       description: Creates a new transaction for the user with the provided details
       operationId: create-transaction
       parameters:
-      - description: Transaction Details
+      - description: TransactionObject Details
         in: body
         name: transaction
         required: true
@@ -609,7 +613,7 @@ paths:
       description: Deletes an existing transaction by its ID
       operationId: delete-transaction
       parameters:
-      - description: Transaction ID
+      - description: TransactionObject ID
         in: path
         name: id
         required: true
@@ -628,12 +632,12 @@ paths:
       description: Updates an existing transaction with the provided details
       operationId: update-transaction
       parameters:
-      - description: Transaction ID
+      - description: TransactionObject ID
         in: path
         name: id
         required: true
         type: string
-      - description: Transaction Details
+      - description: TransactionObject Details
         in: body
         name: transaction
         required: true

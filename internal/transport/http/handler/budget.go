@@ -35,7 +35,7 @@ func (s *Budget) Register(server *server.Server) {
 // @Tags Budget
 // @ID create-budget
 // @Produce json
-// @Param budget body budget.CreateBudgetRequest true "BudgetObject Details"
+// @Param budget body budget.CreateBudgetRequest true "Budget Details"
 // @Success 200 {object} budget.CreateBudgetResponse
 // @Router /budget [post]
 func (s *Budget) Create(c echo.Context) error {

@@ -208,7 +208,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Budget ID",
+                        "description": "BudgetObject ID",
                         "name": "budget_id",
                         "in": "path",
                         "required": true
@@ -245,7 +245,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Budget ID",
+                        "description": "BudgetObject ID",
                         "name": "budget_id",
                         "in": "path",
                         "required": true
@@ -282,7 +282,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Budget ID",
+                        "description": "BudgetObject ID",
                         "name": "budget_id",
                         "in": "path",
                         "required": true
@@ -340,7 +340,7 @@
                 "operationId": "create-category",
                 "parameters": [
                     {
-                        "description": "Category Details",
+                        "description": "CategoryObject Details",
                         "name": "category",
                         "in": "body",
                         "required": true,
@@ -373,7 +373,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Category ID",
+                        "description": "CategoryObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -401,7 +401,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Category ID",
+                        "description": "CategoryObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -458,7 +458,7 @@
                 "operationId": "create-transaction",
                 "parameters": [
                     {
-                        "description": "Transaction Details",
+                        "description": "TransactionObject Details",
                         "name": "transaction",
                         "in": "body",
                         "required": true,
@@ -491,13 +491,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Transaction ID",
+                        "description": "TransactionObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Transaction Details",
+                        "description": "TransactionObject Details",
                         "name": "transaction",
                         "in": "body",
                         "required": true,
@@ -528,7 +528,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Transaction ID",
+                        "description": "TransactionObject ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -586,6 +586,9 @@
         },
         "finly-backend_internal_service_auth.LogoutRequest": {
             "type": "object",
+            "required": [
+                "authToken"
+            ],
             "properties": {
                 "authToken": {
                     "type": "string"
@@ -625,6 +628,9 @@
         },
         "finly-backend_internal_service_auth.RefreshTokenRequest": {
             "type": "object",
+            "required": [
+                "authToken"
+            ],
             "properties": {
                 "authToken": {
                     "type": "string"
@@ -759,7 +765,7 @@
                 }
             }
         },
-        "finly-backend_internal_service_category.Category": {
+        "finly-backend_internal_service_category.CategoryObject": {
             "type": "object",
             "required": [
                 "name"
@@ -849,7 +855,7 @@
                 "categories": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/finly-backend_internal_service_category.Category"
+                        "$ref": "#/definitions/finly-backend_internal_service_category.CategoryObject"
                     }
                 }
             }
@@ -909,12 +915,12 @@
                 "transactions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/finly-backend_internal_service_transaction.Transaction"
+                        "$ref": "#/definitions/finly-backend_internal_service_transaction.TransactionObject"
                     }
                 }
             }
         },
-        "finly-backend_internal_service_transaction.Transaction": {
+        "finly-backend_internal_service_transaction.TransactionObject": {
             "type": "object",
             "properties": {
                 "amount": {
