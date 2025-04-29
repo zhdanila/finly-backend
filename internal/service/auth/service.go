@@ -116,31 +116,26 @@ func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*
 		zap.L().Sugar().Errorf("Error checking if token is blacklisted, token: %s, error: %v", req.AuthToken, err)
 		return nil, err
 	}
-
 	if isBlacklisted {
 		zap.L().Sugar().Warnf("Token is blacklisted, token: %s", req.AuthToken)
 		return nil, errs.TokenBlacklisted
 	}
-
 	user, err := security.GetUserFromToken(req.AuthToken)
 	if err != nil {
 		zap.L().Sugar().Errorf("Error extracting user from token: %s, error: %v", req.AuthToken, err)
 		return nil, err
 	}
-
-	newToken, err := security.GenerateJWT(user.ID, user.Email)
+	newToken, err := security.GenerateJWT(user.UserID, user.Email)
 	if err != nil {
-		zap.L().Sugar().Errorf("Error generating new JWT for userID: %s, email: %s, error: %v", user.ID, user.Email, err)
+		zap.L().Sugar().Errorf("Error generating new JWT for userID: %s, email: %s, error: %v", user.UserID, user.Email, err) // Update log
 		return nil, err
 	}
-
 	err = s.authRepo.RemoveToken(ctx, req.AuthToken)
 	if err != nil {
 		zap.L().Sugar().Errorf("Error removing old token: %s, error: %v", req.AuthToken, err)
 		return nil, err
 	}
-
-	zap.L().Sugar().Infof("Token refreshed successfully for userID: %s", user.ID)
+	zap.L().Sugar().Infof("Token refreshed successfully for userID: %s", user.UserID) // Update log
 	return &RefreshTokenResponse{Token: newToken}, nil
 }
 
@@ -154,7 +149,6 @@ func (s *Service) Me(ctx context.Context, req *MeRequest) (*MeResponse, error) {
 		zap.L().Sugar().Errorf("Error extracting user from token: %s, error: %v", req.AuthToken, err)
 		return nil, err
 	}
-
 	userInfo, err := s.authRepo.GetUserByID(ctx, user.UserID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -164,7 +158,6 @@ func (s *Service) Me(ctx context.Context, req *MeRequest) (*MeResponse, error) {
 		zap.L().Sugar().Errorf("Error fetching user info for userID: %s, error: %v", user.UserID, err)
 		return nil, err
 	}
-
 	zap.L().Sugar().Infof("Successfully retrieved user info for userID: %s", user.UserID)
 	return &MeResponse{
 		UserInfo: UserInfo{
