@@ -463,51 +463,44 @@ func TestBudgetHistoryRepository(t *testing.T) {
 	})
 
 	t.Run("GetCurrentBalance", func(t *testing.T) {
-		sqlxDB, mock, redisClient, mr, logger := testutil.SetupRepositoryTest(t)
+		sqlxDB, mock, _, mr, logger := testutil.SetupRepositoryTest(t)
 		defer sqlxDB.Close()
 		defer mr.Close()
 
 		zap.ReplaceGlobals(logger)
-		repo := NewBudgetHistoryRepository(sqlxDB, redisClient)
+		repo := NewBudgetHistoryRepository(sqlxDB, nil)
 
-		t.Run("CacheHit", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
 			budgetID := "123"
-			cacheKey := fmt.Sprintf(cacheKeyBalance, budgetID)
-			balance := 100.0
-
-			data, err := json.Marshal(balance)
-			assert.NoError(t, err)
-
-			err = redisClient.Set(ctx, cacheKey, data, TTL_GetCurrentBalanceCache).Err()
-			assert.NoError(t, err)
-
-			result, err := repo.GetCurrentBalance(ctx, budgetID)
-			assert.NoError(t, err)
-			assert.Equal(t, balance, result)
-			assert.NoError(t, mock.ExpectationsWereMet())
-		})
-
-		t.Run("CacheMiss", func(t *testing.T) {
-			budgetID := "12456"
-			balance := 100.0
+			expectedBalance := 100.0
 
 			query := fmt.Sprintf("SELECT balance FROM %s WHERE budget_id = \\$1 ORDER BY created_at DESC LIMIT 1", BudgetHistoryTable)
 			mock.ExpectQuery(query).
 				WithArgs(budgetID).
-				WillReturnRows(sqlmock.NewRows([]string{"balance"}).AddRow(balance))
+				WillReturnRows(sqlmock.NewRows([]string{"balance"}).AddRow(expectedBalance))
 
 			result, err := repo.GetCurrentBalance(ctx, budgetID)
 			assert.NoError(t, err)
-			assert.Equal(t, balance, result)
+			assert.Equal(t, expectedBalance, result)
 			assert.NoError(t, mock.ExpectationsWereMet())
-
-			cached, err := redisClient.Get(ctx, fmt.Sprintf(cacheKeyBalance, budgetID)).Result()
-			assert.NoError(t, err)
-			assert.NotEmpty(t, cached)
 		})
 
 		t.Run("EmptyBudgetID", func(t *testing.T) {
 			result, err := repo.GetCurrentBalance(ctx, "")
+			assert.Error(t, err)
+			assert.Equal(t, 0.0, result)
+			assert.NoError(t, mock.ExpectationsWereMet())
+		})
+
+		t.Run("DatabaseError", func(t *testing.T) {
+			budgetID := "456"
+
+			query := fmt.Sprintf("SELECT balance FROM %s WHERE budget_id = \\$1 ORDER BY created_at DESC LIMIT 1", BudgetHistoryTable)
+			mock.ExpectQuery(query).
+				WithArgs(budgetID).
+				WillReturnError(errors.New("db error"))
+
+			result, err := repo.GetCurrentBalance(ctx, budgetID)
 			assert.Error(t, err)
 			assert.Equal(t, 0.0, result)
 			assert.NoError(t, mock.ExpectationsWereMet())

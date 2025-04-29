@@ -20,4 +20,5 @@ lint:
 	 golangci-lint run --config .golangci.yml
 
 test:
+	go install github.com/mfridman/tparse@latest
 	set -o pipefail && go test ./... -json | tparse -all
