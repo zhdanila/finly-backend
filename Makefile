@@ -14,7 +14,7 @@ swagger:
 	swag init --parseDependency --parseInternal -g cmd/server/main.go
 
 dbuild:
-	docker build -t my-go-worker . && docker run --rm -p 8080:8080 my-go-worker
+	docker build -t my-go-worker . && docker run --rm --env-file .env -p 8080:8080 my-go-worker
 
 lint:
 	 golangci-lint run --config .golangci.yml

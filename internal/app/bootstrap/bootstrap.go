@@ -29,12 +29,12 @@ func Website() {
 
 	postgres, err := db.NewPostgresDB(cfg)
 	if err != nil {
-		zap.L().Sugar().Errorf("error with connecting to postgres: %s", err.Error())
+		panic(err)
 	}
 
 	redis, err := db.NewRedisDB(ctx, cfg)
 	if err != nil {
-		zap.L().Sugar().Errorf("error with connecting to redis: %s", err.Error())
+		panic(err)
 	}
 
 	repo := repository.NewRepository(postgres, redis)
