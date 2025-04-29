@@ -17,8 +17,6 @@ WORKDIR /root/
 
 COPY --from=builder /worker .
 
-COPY .env .
-
 ENV ENV=dev
 
 EXPOSE 8080
