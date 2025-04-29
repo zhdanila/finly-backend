@@ -94,7 +94,7 @@ func (s *Transaction) List(c echo.Context) error {
 // @Param id path string true "TransactionObject ID"
 // @Param transaction body transaction.UpdateTransactionRequest true "TransactionObject Details"
 // @Success 200 {object} transaction.UpdateTransactionResponse
-// @Router /transaction/{id} [put]
+// @Router /transaction/{id} [patch]
 func (s *Transaction) Update(c echo.Context) error {
 	var (
 		err error

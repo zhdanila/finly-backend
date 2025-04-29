@@ -27,8 +27,8 @@
 
 ## 📖 API Documentation
 
-Access the Swagger UI after starting the server at:  
-[http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
+Access the Swagger UI:  
+[http://backend.finly.click/swagger/index.html#/](http://backend.finly.click/swagger/index.html#/)
 
 ---
 

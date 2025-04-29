@@ -30,7 +30,7 @@ func (s *Auth) Register(server *server.Server) {
 	group.GET("/me", s.Me)
 }
 
-// @Summary RegisterUser a new user
+// @Summary Register a new user
 // @Description Registers a new user with the provided details
 // @Tags User
 // @ID register-user
