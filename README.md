@@ -1,5 +1,3 @@
----
-
 # **Finly Backend**
 
 **Finly** is a backend application designed to help users manage their personal finances. It enables efficient tracking of expenses and income, budget management, and custom categories for enhanced financial organization. Built using **Go**, the backend provides a **RESTful API** for seamless frontend integration.
