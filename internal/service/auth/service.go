@@ -127,7 +127,7 @@ func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*
 	}
 	newToken, err := security.GenerateJWT(user.UserID, user.Email)
 	if err != nil {
-		zap.L().Sugar().Errorf("Error generating new JWT for userID: %s, email: %s, error: %v", user.UserID, user.Email, err) // Update log
+		zap.L().Sugar().Errorf("Error generating new JWT for userID: %s, email: %s, error: %v", user.UserID, user.Email, err)
 		return nil, err
 	}
 	err = s.authRepo.RemoveToken(ctx, req.AuthToken)
@@ -135,7 +135,7 @@ func (s *Service) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (*
 		zap.L().Sugar().Errorf("Error removing old token: %s, error: %v", req.AuthToken, err)
 		return nil, err
 	}
-	zap.L().Sugar().Infof("Token refreshed successfully for userID: %s", user.UserID) // Update log
+	zap.L().Sugar().Infof("Token refreshed successfully for userID: %s", user.UserID)
 	return &RefreshTokenResponse{Token: newToken}, nil
 }
 
