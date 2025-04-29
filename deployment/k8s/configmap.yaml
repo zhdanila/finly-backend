@@ -4,7 +4,7 @@ metadata:
   name: finly-backend-config
   namespace: default
 data:
-  ENV: "dev"
+  ENV: "staging"
   HTTP_PORT: "8080"
   DB_HOST: "postgres-service.default.svc.cluster.local"
   DB_PORT: "5432"

@@ -28,29 +28,62 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	baseCnf := &Config{}
-
-	if err := baseCnf.Load(); err != nil {
+	cfg := &Config{}
+	if err := cfg.Load(); err != nil {
 		return nil, err
 	}
-
-	return baseCnf, nil
+	return cfg, nil
 }
 
-func (cnf *Config) Load() error {
-	cnf.Env = os.Getenv("ENV")
-	cnf.HTTPPort = os.Getenv("HTTP_PORT")
+func (cfg *Config) Load() error {
+	cfg.Env = os.Getenv("ENV")
 
-	cnf.DBHost = os.Getenv("DB_HOST")
-	cnf.DBPort = os.Getenv("DB_PORT")
-	cnf.DBUsername = os.Getenv("DB_USERNAME")
-	cnf.DBName = os.Getenv("DB_NAME")
-	cnf.DBSSLMode = os.Getenv("DB_SSLMODE")
-	cnf.DBPassword = os.Getenv("DB_PASSWORD")
+	switch cfg.Env {
+	case "dev":
+		if err := loadDevConfig(cfg); err != nil {
+			return err
+		}
+	case "staging":
+		if err := loadStagingConfig(cfg); err != nil {
+			return err
+		}
+	case "test":
+		if err := loadTestConfig(cfg); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("invalid ENV value: %s", cfg.Env)
+	}
 
-	cnf.RedisHost = os.Getenv("REDIS_HOST")
-	cnf.RedisPort = os.Getenv("REDIS_PORT")
-	cnf.RedisPassword = os.Getenv("REDIS_PASSWORD")
+	if err := validateConfig(cfg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func loadDevConfig(cfg *Config) error {
+	viper.SetConfigFile(".env")
+	if err := viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("error reading config file: %v", err)
+	}
+	if err := viper.Unmarshal(cfg); err != nil {
+		return fmt.Errorf("failed to unmarshal config: %s", err)
+	}
+	return nil
+}
+
+func loadStagingConfig(cfg *Config) error {
+	cfg.HTTPPort = getEnv("HTTP_PORT", "")
+	cfg.DBHost = getEnv("DB_HOST", "")
+	cfg.DBPort = getEnv("DB_PORT", "")
+	cfg.DBUsername = getEnv("DB_USERNAME", "")
+	cfg.DBName = getEnv("DB_NAME", "")
+	cfg.DBSSLMode = getEnv("DB_SSLMODE", "")
+	cfg.DBPassword = getEnv("DB_PASSWORD", "")
+	cfg.RedisHost = getEnv("REDIS_HOST", "")
+	cfg.RedisPort = getEnv("REDIS_PORT", "")
+	cfg.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
 	redisDB := os.Getenv("REDIS_DB")
 	if redisDB != "" {
@@ -58,23 +91,33 @@ func (cnf *Config) Load() error {
 		if err != nil {
 			return fmt.Errorf("failed to convert REDIS_DB to int: %v", err)
 		}
-		cnf.RedisDB = redisDBInt
+		cfg.RedisDB = redisDBInt
 	}
-
-	if err := viper.Unmarshal(cnf); err != nil {
-		return fmt.Errorf("failed to unmarshal config: %v", err)
-	}
-
-	if err := validateConfig(cnf); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func validateConfig(cnf *Config) error {
+func loadTestConfig(cfg *Config) error {
+	viper.SetConfigFile("test.env")
+	if err := viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("error reading config file: %v", err)
+	}
+	if err := viper.Unmarshal(cfg); err != nil {
+		return fmt.Errorf("failed to unmarshal config: %s", err)
+	}
+	return nil
+}
+
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
+
+func validateConfig(cfg *Config) error {
 	validate := validator.New()
-	if err := validate.Struct(cnf); err != nil {
+	if err := validate.Struct(cfg); err != nil {
 		return fmt.Errorf("configuration validation failed: %v", err)
 	}
 	return nil
