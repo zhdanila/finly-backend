@@ -139,7 +139,7 @@
                 "tags": [
                     "User"
                 ],
-                "summary": "RegisterUser a new user",
+                "summary": "Register a new user",
                 "operationId": "register-user",
                 "parameters": [
                     {
@@ -478,7 +478,35 @@
             }
         },
         "/transaction/{id}": {
-            "put": {
+            "delete": {
+                "description": "Deletes an existing transaction by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction"
+                ],
+                "summary": "Delete a transaction",
+                "operationId": "delete-transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "TransactionObject ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/finly-backend_internal_service_transaction.DeleteTransactionResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "description": "Updates an existing transaction with the provided details",
                 "produces": [
                     "application/json"
@@ -511,34 +539,6 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/finly-backend_internal_service_transaction.UpdateTransactionResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes an existing transaction by its ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Transaction"
-                ],
-                "summary": "Delete a transaction",
-                "operationId": "delete-transaction",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "TransactionObject ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/finly-backend_internal_service_transaction.DeleteTransactionResponse"
                         }
                     }
                 }

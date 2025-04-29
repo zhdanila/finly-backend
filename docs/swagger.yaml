@@ -394,7 +394,7 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/finly-backend_internal_service_auth.RegisterResponse'
-      summary: RegisterUser a new user
+      summary: Register a new user
       tags:
       - User
   /budget:
@@ -628,7 +628,7 @@ paths:
       summary: Delete a transaction
       tags:
       - Transaction
-    put:
+    patch:
       description: Updates an existing transaction with the provided details
       operationId: update-transaction
       parameters:
