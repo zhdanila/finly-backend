@@ -223,21 +223,11 @@ func (b BudgetHistoryRepository) GetCurrentBalance(ctx context.Context, budgetID
 		return 0, fmt.Errorf("budgetID cannot be empty")
 	}
 
-	cacheKey := fmt.Sprintf(cacheKeyBalance, budgetID)
-	fetch := func() (float64, error) {
-		var balance float64
-		query := fmt.Sprintf("SELECT balance FROM %s WHERE budget_id = $1 ORDER BY created_at DESC LIMIT 1", BudgetHistoryTable)
-		if err := b.postgres.GetContext(ctx, &balance, query, budgetID); err != nil {
-			zap.L().Sugar().Errorf("Failed to fetch current balance from DB, budgetID: %s, error: %v", budgetID, err)
-			return 0, err
-		}
-		return balance, nil
-	}
-
-	result, err := db.WithCache(ctx, b.redis, cacheKey, TTL_GetCurrentBalanceCache, fetch)
-	if err != nil {
+	var balance float64
+	query := fmt.Sprintf("SELECT balance FROM %s WHERE budget_id = $1 ORDER BY created_at DESC LIMIT 1", BudgetHistoryTable)
+	if err := b.postgres.GetContext(ctx, &balance, query, budgetID); err != nil {
+		zap.L().Sugar().Errorf("Failed to fetch current balance from DB, budgetID: %s, error: %v", budgetID, err)
 		return 0, err
 	}
-
-	return result, nil
+	return balance, nil
 }
