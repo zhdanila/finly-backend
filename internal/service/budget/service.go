@@ -6,7 +6,7 @@ import (
 	"errors"
 	"finly-backend/internal/repository/budget"
 	"finly-backend/internal/repository/budget_history"
-	"finly-backend/pkg/db"
+	"finly-backend/pkg/transaction"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
@@ -21,18 +21,22 @@ type Budget interface {
 type Service struct {
 	budgetRepo        budget.Budget
 	budgetHistoryRepo budget_history.BudgetHistory
+
+	transactionExecutor transaction.TransactionExecutor
 }
 
-func NewService(budgetRepo budget.Budget, budgetHistoryRepo budget_history.BudgetHistory) *Service {
+func NewService(budgetRepo budget.Budget, budgetHistoryRepo budget_history.BudgetHistory, transactionExecutor transaction.TransactionExecutor) *Service {
 	return &Service{
 		budgetRepo:        budgetRepo,
 		budgetHistoryRepo: budgetHistoryRepo,
+
+		transactionExecutor: transactionExecutor,
 	}
 }
 
 func (s *Service) Create(ctx context.Context, req *CreateBudgetRequest) (*CreateBudgetResponse, error) {
 	var budgetID string
-	err := db.WithTransaction(ctx, s.budgetRepo.GetDB(), func(tx *sqlx.Tx) error {
+	err := s.transactionExecutor.WithTransaction(ctx, s.budgetRepo.GetDB(), func(tx *sqlx.Tx) error {
 		var err error
 
 		budgetID, err = s.budgetRepo.CreateTX(ctx, tx, req.UserID, req.Currency)

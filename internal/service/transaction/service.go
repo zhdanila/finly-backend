@@ -7,7 +7,7 @@ import (
 	"finly-backend/internal/domain/enums/e_transaction_type"
 	"finly-backend/internal/repository/budget_history"
 	"finly-backend/internal/repository/transaction"
-	"finly-backend/pkg/db"
+	transactionExec "finly-backend/pkg/transaction"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 	"time"
@@ -23,12 +23,15 @@ type Transaction interface {
 type Service struct {
 	transactionRepo   transaction.Transaction
 	budgetHistoryRepo budget_history.BudgetHistory
+
+	transactionExecutor transactionExec.TransactionExecutor
 }
 
-func NewService(transactionRepo transaction.Transaction, budgetHistoryRepo budget_history.BudgetHistory) *Service {
+func NewService(transactionRepo transaction.Transaction, budgetHistoryRepo budget_history.BudgetHistory, transactionExecutor transactionExec.TransactionExecutor) *Service {
 	return &Service{
-		transactionRepo:   transactionRepo,
-		budgetHistoryRepo: budgetHistoryRepo,
+		transactionRepo:     transactionRepo,
+		budgetHistoryRepo:   budgetHistoryRepo,
+		transactionExecutor: transactionExecutor,
 	}
 }
 
@@ -38,7 +41,7 @@ func (s *Service) Create(ctx context.Context, req *CreateTransactionRequest) (*C
 		err           error
 	)
 
-	if err = db.WithTransaction(ctx, s.transactionRepo.GetDB(), func(tx *sqlx.Tx) error {
+	if err = s.transactionExecutor.WithTransaction(ctx, s.transactionRepo.GetDB(), func(tx *sqlx.Tx) error {
 		transactionID, err = s.transactionRepo.CreateTX(ctx, tx, req.UserID, req.BudgetID, req.CategoryID, req.Type.String(), req.Note, req.Amount)
 		if err != nil {
 			zap.L().Sugar().Errorf("Failed to create transaction for userID=%s, budgetID=%s: %v", req.UserID, req.BudgetID, err)
@@ -101,7 +104,7 @@ func (s *Service) List(ctx context.Context, req *ListTransactionRequest) (*ListT
 }
 
 func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*UpdateTransactionResponse, error) {
-	if err := db.WithTransaction(ctx, s.transactionRepo.GetDB(), func(tx *sqlx.Tx) error {
+	if err := s.transactionExecutor.WithTransaction(ctx, s.transactionRepo.GetDB(), func(tx *sqlx.Tx) error {
 		if err := s.transactionRepo.UpdateTX(ctx, tx, req.TransactionID, req.UserID, req.CategoryID, req.Type, req.Note, req.Amount); err != nil {
 			zap.L().Sugar().Errorf("Failed to update transactionID=%s for userID=%s: %v", req.TransactionID, req.UserID, err)
 			return errs.DatabaseError
@@ -137,7 +140,7 @@ func (s *Service) Update(ctx context.Context, req *UpdateTransactionRequest) (*U
 }
 
 func (s *Service) Delete(ctx context.Context, req *DeleteTransactionRequest) (*DeleteTransactionResponse, error) {
-	if err := db.WithTransaction(ctx, s.transactionRepo.GetDB(), func(tx *sqlx.Tx) error {
+	if err := s.transactionExecutor.WithTransaction(ctx, s.transactionRepo.GetDB(), func(tx *sqlx.Tx) error {
 		transaction, err := s.transactionRepo.GetByID(ctx, req.TransactionID, req.UserID)
 		if err != nil {
 			zap.L().Sugar().Errorf("Failed to get transaction by ID for transactionID=%s, userID=%s: %v", req.TransactionID, req.UserID, err)

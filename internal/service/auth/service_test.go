@@ -277,7 +277,7 @@ func TestRefreshToken(t *testing.T) {
 			if tt.expectedResp != nil {
 				assert.NotNil(t, resp)
 				assert.NotEmpty(t, resp.Token)
-				// Verify the new token
+
 				claims, err := security.GetUserFromToken(resp.Token)
 				assert.NoError(t, err)
 				assert.Equal(t, "user123", claims.UserID)

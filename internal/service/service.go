@@ -6,6 +6,7 @@ import (
 	"finly-backend/internal/service/budget"
 	"finly-backend/internal/service/category"
 	"finly-backend/internal/service/transaction"
+	transactionExec "finly-backend/pkg/transaction"
 )
 
 type Service struct {
@@ -18,8 +19,8 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Auth:        auth.NewService(repos.Auth, repos.Budget),
-		Budget:      budget.NewService(repos.Budget, repos.BudgetHistory),
+		Budget:      budget.NewService(repos.Budget, repos.BudgetHistory, transactionExec.NewTransactionExecutor()),
 		Category:    category.NewService(repos.Category),
-		Transaction: transaction.NewService(repos.Transaction, repos.BudgetHistory),
+		Transaction: transaction.NewService(repos.Transaction, repos.BudgetHistory, transactionExec.NewTransactionExecutor()),
 	}
 }
